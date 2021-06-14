@@ -1,5 +1,6 @@
 package tv.isshoni.araragi.stream;
 
+import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.stream.model.IAraragiStream;
 
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class AraragiStream<T> implements IAraragiStream<T> {
 
     @Override
     public AraragiStream<T> add(Supplier<Collection<? extends T>> collection) {
-        return null;
+        return add(collection.get());
     }
 
     @SafeVarargs
@@ -60,7 +61,9 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     @SafeVarargs
     @Override
     public final AraragiStream<T> expand(Function<? super T, Collection<? extends T>>... collectionSupplier) {
-        return null;
+        return Streams.to(this.stream
+                .flatMap(o -> Stream.concat(Arrays.stream(collectionSupplier)
+                        .flatMap(s -> s.apply(o).stream()), Stream.of(o))));
     }
 
     @Override
@@ -69,8 +72,18 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     }
 
     @Override
-    public <R> AraragiStream<T> tempCast(Class<R> clazz, Consumer<AraragiStream<R>> castedStreamConsumer) {
+    public <R> AraragiStream<T> tempCast(Class<R> clazz, Consumer<IAraragiStream<R>> castedStreamConsumer) {
         return null;
+    }
+
+    @Override
+    public <F, S> PairStream<F, S> mapToPair(Function<? super T, ? extends F> firstMapper, Function<? super T, ? extends S> secondMapper) {
+        return new PairStream<>(this.stream.map(v -> new Pair<>(firstMapper.apply(v), secondMapper.apply(v))));
+    }
+
+    @Override
+    public <F, S> PairStream<F, S> flatMapToPair(Function<? super T, ? extends Stream<? extends Pair<F, S>>> mapper) {
+        return new PairStream<>(this.stream.flatMap(mapper));
     }
 
     @Override
@@ -249,23 +262,23 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     }
 
     @Override
-    public Stream<T> sequential() {
-        return this.stream.sequential();
+    public AraragiStream<T> sequential() {
+        return Streams.to(this.stream.sequential());
     }
 
     @Override
-    public Stream<T> parallel() {
-        return this.stream.parallel();
+    public AraragiStream<T> parallel() {
+        return Streams.to(this.stream.parallel());
     }
 
     @Override
-    public Stream<T> unordered() {
-        return this.stream.unordered();
+    public AraragiStream<T> unordered() {
+        return Streams.to(this.stream.unordered());
     }
 
     @Override
-    public Stream<T> onClose(Runnable closeHandler) {
-        return this.stream.onClose(closeHandler);
+    public AraragiStream<T> onClose(Runnable closeHandler) {
+        return Streams.to(this.stream.onClose(closeHandler));
     }
 
     @Override
