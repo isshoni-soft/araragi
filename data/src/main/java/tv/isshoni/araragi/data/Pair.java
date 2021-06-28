@@ -1,9 +1,18 @@
 package tv.isshoni.araragi.data;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 
 public class Pair<F, S> {
+
+    public static <F extends Comparable<F>, S> Comparator<Pair<F, S>> compareFirst() {
+        return Comparator.comparing(o -> o.first);
+    }
+
+    public static <F, S extends Comparable<S>> Comparator<Pair<F, S>> compareSecond() {
+        return Comparator.comparing(o -> o.second);
+    }
 
     private final F first;
 
