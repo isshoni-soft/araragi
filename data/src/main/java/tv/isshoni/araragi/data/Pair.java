@@ -3,6 +3,8 @@ package tv.isshoni.araragi.data;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class Pair<F, S> {
 
@@ -34,6 +36,18 @@ public class Pair<F, S> {
 
     public S getSecond() {
         return this.second;
+    }
+
+    public <NF, NS> Pair<NF, NS> map(BiFunction<F, S, Pair<NF, NS>> mapper) {
+        return mapper.apply(this.first, this.second);
+    }
+
+    public <NF> Pair<NF, S> mapFirst(BiFunction<F, S, NF> mapper) {
+        return new Pair<>(mapper.apply(this.first, this.second), this.second);
+    }
+
+    public <NS> Pair<F, NS> mapSecond(BiFunction<F, S, NS> mapper) {
+        return new Pair<>(this.first, mapper.apply(this.first, this.second));
     }
 
     @Override
