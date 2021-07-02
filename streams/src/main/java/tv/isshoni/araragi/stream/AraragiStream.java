@@ -33,6 +33,10 @@ public class AraragiStream<T> implements IAraragiStream<T> {
 
     private final Stream<T> stream;
 
+    protected AraragiStream(Collection<T> collection) {
+        this(collection.stream());
+    }
+
     protected AraragiStream(Stream<T> stream) {
         this.stream = stream;
     }

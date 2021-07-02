@@ -1,22 +1,41 @@
 package tv.isshoni.araragi.stream;
 
 import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.stream.model.IAraragiStream;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface Streams {
+public final class Streams {
 
-    static <T> AraragiStream<T> to(Stream<T> stream) {
+    private Streams() { }
+
+    public static <F, S> Function<Collection<Pair<F, S>>, PairStream<F, S>> collectionToPairStream() {
+        return PairStream::new;
+    }
+
+    public static <T> Function<Collection<T>, AraragiStream<T>> collectionToAraragiStream() {
+        return AraragiStream::new;
+    }
+
+    public static <F, S> Function<Stream<Pair<F, S>>, PairStream<F, S>> streamToPairStream() {
+        return PairStream::new;
+    }
+
+    public static <T> Function<Stream<T>, AraragiStream<T>> streamToAraragiStream() {
+        return AraragiStream::new;
+    }
+
+    public static <T> AraragiStream<T> to(Stream<T> stream) {
         return new AraragiStream<>(stream);
     }
 
-    static <T> AraragiStream<T> to(Stream<T>... streams) {
+    public static <T> AraragiStream<T> to(Stream<T>... streams) {
         Stream<T> result = null;
 
         for (Stream<T> stream : streams) {
@@ -30,26 +49,30 @@ public interface Streams {
         return to(result);
     }
 
-    static <T> AraragiStream<T> to(Collection<T> collection) {
+    public static <T, S extends IAraragiStream<T>> S to(Collection<T> collection, Function<Collection<T>, S> constructor) {
+        return constructor.apply(collection);
+    }
+
+    public static <T> AraragiStream<T> to(Collection<T> collection) {
         return to(collection.stream());
     }
 
-    static <P, T extends P> AraragiStream<P> to(Class<P> clazz, Collection<T> collection) {
-        return to((Stream<P>) collection.stream());
+    public static <P, T extends P, S extends IAraragiStream<P>> S to(Class<P> clazz, Collection<T> collection, Function<Collection<P>, S> constructor) {
+        return to((Collection<P>) collection, constructor);
     }
 
-    static <F, S> PairStream<F, S> to(Map<F, S> map) {
+    public static <F, S> PairStream<F, S> to(Map<F, S> map) {
         return new PairStream<>(map);
     }
 
-    static <F, S> Collector<Pair<F, S>, ?, Map<F, S>> collectPairsToMap() {
+    public static <F, S> Collector<Pair<F, S>, ?, Map<F, S>> collectPairsToMap() {
         return new SimpleCollector<>(HashMap::new,
                 SimpleCollector.uniqKeysMapAccumulator(Pair::getFirst, Pair::getSecond),
                 SimpleCollector.uniqKeysMapMerger(),
                 SimpleCollector.CH_ID);
     }
 
-    static <F, S> Collector<Pair<F, S>, ?, Map<F, S>> collectPairsToUnmodifiableMap() {
+    public static <F, S> Collector<Pair<F, S>, ?, Map<F, S>> collectPairsToUnmodifiableMap() {
         return Collectors.collectingAndThen(
                 collectPairsToMap(),
                 map -> Map.ofEntries(map.entrySet().toArray(new Map.Entry[0])));

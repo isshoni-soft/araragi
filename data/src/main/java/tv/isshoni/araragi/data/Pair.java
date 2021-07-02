@@ -16,9 +16,9 @@ public class Pair<F, S> {
         return Comparator.comparing(o -> o.second);
     }
 
-    private final F first;
+    private F first;
 
-    private final S second;
+    private S second;
 
     public Pair(F first, S second) {
         this.first = first;
@@ -28,6 +28,14 @@ public class Pair<F, S> {
     public Pair(Map.Entry<F, S> entry) {
         this.first = entry.getKey();
         this.second = entry.getValue();
+    }
+
+    public void setFirst(F first) {
+        this.first = first;
+    }
+
+    public void setSecond(S second) {
+        this.second = second;
     }
 
     public F getFirst() {

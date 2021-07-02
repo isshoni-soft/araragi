@@ -44,6 +44,10 @@ public class PairStream<F, S> implements IPairStream<F, S> {
                 .map(Pair::new);
     }
 
+    protected PairStream(Collection<Pair<F, S>> collection) {
+        this.stream = Streams.to(collection);
+    }
+
     @Override
     public <NF> PairStream<NF, S> mapFirst(Function<? super F, ? extends NF> mapper) {
         return new PairStream<>(this.stream.map(p -> new Pair<>(mapper.apply(p.getFirst()), p.getSecond())));
