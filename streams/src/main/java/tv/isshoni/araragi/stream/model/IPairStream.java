@@ -17,6 +17,10 @@ public interface IPairStream<F, S> extends IAraragiStream<Pair<F, S>> {
 
     <R> IAraragiStream<R> map(BiFunction<? super F, ? super S, ? extends R> mapper);
 
+    IAraragiStream<F> mapFirst();
+
+    IAraragiStream<S> mapSecond();
+
     Map<F, S> toMap();
 
     Map<F, S> toUnmodifiableMap();

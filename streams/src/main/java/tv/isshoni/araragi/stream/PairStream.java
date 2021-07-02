@@ -69,6 +69,16 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
+    public AraragiStream<F> mapFirst() {
+        return this.stream.map(Pair::getFirst);
+    }
+
+    @Override
+    public AraragiStream<S> mapSecond() {
+        return this.stream.map(Pair::getSecond);
+    }
+
+    @Override
     public Map<F, S> toMap() {
         return this.stream.collect(Streams.collectPairsToMap());
     }
@@ -176,33 +186,33 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> distinct() {
-        return this.stream.distinct();
+    public PairStream<F, S> distinct() {
+        return new PairStream<>(this.stream.distinct());
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> sorted() {
-        return this.stream.sorted();
+    public PairStream<F, S> sorted() {
+        return new PairStream<>(this.stream.sorted());
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> sorted(Comparator<? super Pair<F, S>> comparator) {
-        return this.stream.sorted(comparator);
+    public PairStream<F, S> sorted(Comparator<? super Pair<F, S>> comparator) {
+        return new PairStream<>(this.stream.sorted(comparator));
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> peek(Consumer<? super Pair<F, S>> action) {
-        return this.stream.peek(action);
+    public PairStream<F, S> peek(Consumer<? super Pair<F, S>> action) {
+        return new PairStream<>(this.stream.peek(action));
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> limit(long maxSize) {
-        return this.stream.limit(maxSize);
+    public PairStream<F, S> limit(long maxSize) {
+        return new PairStream<>(this.stream.limit(maxSize));
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> skip(long n) {
-        return this.stream.skip(n);
+    public PairStream<F, S> skip(long n) {
+        return new PairStream<>(this.stream.skip(n));
     }
 
     @Override
@@ -306,23 +316,23 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> sequential() {
-        return this.stream.sequential();
+    public PairStream<F, S> sequential() {
+        return new PairStream<>(this.stream.sequential());
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> parallel() {
-        return this.stream.parallel();
+    public PairStream<F, S> parallel() {
+        return new PairStream<>(this.stream.parallel());
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> unordered() {
-        return this.stream.unordered();
+    public PairStream<F, S> unordered() {
+        return new PairStream<>(this.stream.unordered());
     }
 
     @Override
-    public AraragiStream<Pair<F, S>> onClose(Runnable closeHandler) {
-        return this.stream.onClose(closeHandler);
+    public PairStream<F, S> onClose(Runnable closeHandler) {
+        return new PairStream<>(this.stream.onClose(closeHandler));
     }
 
     @Override
