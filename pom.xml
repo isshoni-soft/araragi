@@ -10,6 +10,7 @@
     <modules>
         <module>streams</module>
         <module>data</module>
+        <module>logging</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -31,6 +32,12 @@
             <dependency>
                 <groupId>tv.isshoni.araragi</groupId>
                 <artifactId>data</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tv.isshoni.araragi</groupId>
+                <artifactId>logging</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
