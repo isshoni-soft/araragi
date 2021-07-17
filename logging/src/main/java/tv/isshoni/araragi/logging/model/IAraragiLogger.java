@@ -13,6 +13,8 @@ public interface IAraragiLogger {
 
     void setLevel(ILevel level);
 
+    void setFormatter(IFormatter formatter);
+
     default void log(String message, ILevel level, Pair<String, Supplier<Object>>... data) {
         if (level.compareTo(this.getLevel()) < 0) {
             return;
@@ -21,7 +23,7 @@ public interface IAraragiLogger {
         // TODO: Add message parsing & supplier filling
 
         for (ILoggerDriver driver : this.getDrivers()) {
-            driver.process(message, this, level, ZonedDateTime.now());
+            driver.process(this.getFormatter().format(message, this, level, ZonedDateTime.now()));
         }
     }
 
@@ -29,9 +31,15 @@ public interface IAraragiLogger {
         this.log(message, Levels.INFO, data);
     }
 
+    default void warn(String message, Pair<String, Supplier<Object>>... data) {
+        this.log(message, Levels.WARNING, data);
+    }
+
     ILevel getLevel();
 
     String getName();
+
+    IFormatter getFormatter();
 
     List<ILoggerDriver> getDrivers();
 }

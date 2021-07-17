@@ -1,6 +1,9 @@
 package tv.isshoni.araragi.logging;
 
+import tv.isshoni.araragi.logging.driver.ConsoleDriver;
+import tv.isshoni.araragi.logging.format.SimpleFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
+import tv.isshoni.araragi.logging.model.IFormatter;
 import tv.isshoni.araragi.logging.model.ILevel;
 import tv.isshoni.araragi.logging.model.ILoggerDriver;
 
@@ -12,7 +15,7 @@ public class AraragiLogger implements IAraragiLogger {
 
     public static AraragiLogger create(String name) {
         AraragiLogger result = new AraragiLogger(name);
-        // TODO: Register console driver here.
+        result.registerDriver(new ConsoleDriver());
 
         return result;
     }
@@ -21,10 +24,13 @@ public class AraragiLogger implements IAraragiLogger {
 
     private final List<ILoggerDriver> drivers;
 
+    private IFormatter formatter;
+
     private ILevel level;
 
     public AraragiLogger(String name) {
         this.name = name;
+        this.formatter = new SimpleFormatter();
         this.drivers = new LinkedList<>();
         this.level = Levels.INFO;
     }
@@ -40,6 +46,11 @@ public class AraragiLogger implements IAraragiLogger {
     }
 
     @Override
+    public void setFormatter(IFormatter formatter) {
+        this.formatter = formatter;
+    }
+
+    @Override
     public ILevel getLevel() {
         return this.level;
     }
@@ -47,6 +58,11 @@ public class AraragiLogger implements IAraragiLogger {
     @Override
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public IFormatter getFormatter() {
+        return this.formatter;
     }
 
     @Override

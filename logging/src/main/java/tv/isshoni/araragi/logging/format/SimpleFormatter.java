@@ -11,10 +11,9 @@ import java.util.Locale;
 
 public class SimpleFormatter implements IFormatter {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss.SS")
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss.SS")
             .withLocale(Locale.US)
             .withZone(ZoneId.systemDefault());
-
 
     @Override
     public String format(String message, IAraragiLogger logger, ILevel level, ZonedDateTime time) {

@@ -11,6 +11,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+/**
+ * This is taken from the JDK because it was all private scoped but I needed it
+ */
 public class SimpleCollector<T, A, R> implements Collector<T, A, R> {
 
     public static final Set<Collector.Characteristics> CH_ID
