@@ -2,7 +2,7 @@ package tv.isshoni.araragi.logging.format;
 
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
 import tv.isshoni.araragi.logging.model.IFormatter;
-import tv.isshoni.araragi.logging.model.ILevel;
+import tv.isshoni.araragi.logging.model.level.ILevel;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

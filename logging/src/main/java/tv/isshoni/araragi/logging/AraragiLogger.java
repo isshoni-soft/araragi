@@ -4,8 +4,9 @@ import tv.isshoni.araragi.logging.driver.ConsoleDriver;
 import tv.isshoni.araragi.logging.format.SimpleFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
 import tv.isshoni.araragi.logging.model.IFormatter;
-import tv.isshoni.araragi.logging.model.ILevel;
+import tv.isshoni.araragi.logging.model.level.ILevel;
 import tv.isshoni.araragi.logging.model.ILoggerDriver;
+import tv.isshoni.araragi.logging.model.level.Level;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -32,7 +33,7 @@ public class AraragiLogger implements IAraragiLogger {
         this.name = name;
         this.formatter = new SimpleFormatter();
         this.drivers = new LinkedList<>();
-        this.level = Levels.INFO;
+        this.level = Level.INFO;
     }
 
     @Override

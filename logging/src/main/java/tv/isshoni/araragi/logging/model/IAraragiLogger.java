@@ -1,7 +1,8 @@
 package tv.isshoni.araragi.logging.model;
 
 import tv.isshoni.araragi.data.Pair;
-import tv.isshoni.araragi.logging.Levels;
+import tv.isshoni.araragi.logging.model.level.Level;
+import tv.isshoni.araragi.logging.model.level.ILevel;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -28,11 +29,11 @@ public interface IAraragiLogger {
     }
 
     default void info(String message, Pair<String, Supplier<Object>>... data) {
-        this.log(message, Levels.INFO, data);
+        this.log(message, Level.INFO, data);
     }
 
     default void warn(String message, Pair<String, Supplier<Object>>... data) {
-        this.log(message, Levels.WARNING, data);
+        this.log(message, Level.WARNING, data);
     }
 
     ILevel getLevel();

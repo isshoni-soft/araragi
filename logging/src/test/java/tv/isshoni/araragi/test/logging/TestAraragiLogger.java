@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import tv.isshoni.araragi.logging.AraragiLogger;
-import tv.isshoni.araragi.logging.Levels;
+import tv.isshoni.araragi.logging.model.level.Level;
 import tv.isshoni.araragi.logging.format.SimpleFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
 import tv.isshoni.araragi.test.logging.model.TestFormatter;
@@ -56,7 +56,7 @@ public class TestAraragiLogger {
 
     @Test
     public void testWarnLogging() {
-        this.logger.setLevel(Levels.WARNING);
+        this.logger.setLevel(Level.WARNING);
         this.logger.info("print!");
         this.logger.warn("THIS IS A TEST");
         this.logger.info("asd");
