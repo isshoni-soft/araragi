@@ -2,7 +2,8 @@ package tv.isshoni.araragi.logging.model.level;
 
 public enum Level implements ILevel {
     INFO("INFO", 1000),
-    WARNING("WARNING", 900);
+    WARNING("WARNING", 900),
+    ERROR("ERROR", 2000);
 
     private final String name;
 
