@@ -21,6 +21,14 @@ public class AraragiLogger implements IAraragiLogger {
         return result;
     }
 
+    public static AraragiLogger create(String name, ILevel level) {
+        AraragiLogger result = new AraragiLogger(name);
+        result.registerDriver(new ConsoleDriver());
+        result.setLevel(level);
+
+        return result;
+    }
+
     private final String name;
 
     private final List<ILoggerDriver> drivers;
