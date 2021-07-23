@@ -11,6 +11,7 @@
         <module>streams</module>
         <module>data</module>
         <module>logging</module>
+        <module>async</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -23,6 +24,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>tv.isshoni.araragi</groupId>
+                <artifactId>async</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>tv.isshoni.araragi</groupId>
                 <artifactId>streams</artifactId>
