@@ -25,7 +25,7 @@ public interface IAraragiLogger {
         // TODO: Add message parsing & supplier filling
 
         for (ILoggerDriver driver : this.getDrivers()) {
-            driver.process(this.getFormatter().format(message, this, level, ZonedDateTime.now()));
+            driver.process(this.getFormatter().format(message, this, level, ZonedDateTime.now()), level);
         }
     }
 
