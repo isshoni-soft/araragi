@@ -49,7 +49,7 @@ public class TestAraragiLogger {
     @Test
     public void testInfoLogging() {
         this.logger.info("print!");
-        this.logger.warn("THIS IS A TEST");
+        this.logger.debug("THIS IS A TEST");
         this.logger.info("asd");
 
         assertEquals("[INFO]: Test Logger - print!\n[INFO]: Test Logger - asd", this.output.toString().trim());
@@ -62,7 +62,7 @@ public class TestAraragiLogger {
         this.logger.warn("THIS IS A TEST");
         this.logger.info("asd");
 
-        assertEquals("[INFO]: Test Logger - print!\n[WARNING]: Test Logger - THIS IS A TEST\n[INFO]: Test Logger - asd", this.output.toString().trim());
+        assertEquals("[WARNING]: Test Logger - THIS IS A TEST", this.output.toString().trim());
     }
 
     @Test

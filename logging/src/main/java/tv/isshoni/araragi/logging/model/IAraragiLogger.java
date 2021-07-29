@@ -57,6 +57,14 @@ public interface IAraragiLogger {
         this.error(message, new HashMap<>());
     }
 
+    default void debug(String message, Map<String, Supplier<Object>> data) {
+        this.log(message, Level.DEBUG, data);
+    }
+
+    default void debug(String message) {
+        this.debug(message, new HashMap<>());
+    }
+
     ILevel getLevel();
 
     String getName();

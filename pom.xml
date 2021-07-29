@@ -12,6 +12,7 @@
         <module>data</module>
         <module>logging</module>
         <module>async</module>
+        <module>native</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -24,6 +25,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>tv.isshoni.araragi</groupId>
+                <artifactId>native</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>tv.isshoni.araragi</groupId>
                 <artifactId>async</artifactId>

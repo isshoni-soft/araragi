@@ -9,12 +9,5 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>async</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>tv.isshoni.araragi</groupId>
-            <artifactId>native</artifactId>
-        </dependency>
-    </dependencies>
+    <artifactId>native</artifactId>
 </project>
