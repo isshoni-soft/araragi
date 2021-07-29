@@ -38,6 +38,7 @@ public class TestAraragiLogger {
         this.logger.setFormatter(new TestFormatter());
 
         System.setOut(new PrintStream(this.output));
+        System.setErr(new PrintStream(this.output));
 
         mockStatic(ZonedDateTime.class);
         when(ZonedDateTime.now()).thenReturn(this.time);
@@ -62,6 +63,15 @@ public class TestAraragiLogger {
         this.logger.info("asd");
 
         assertEquals("[INFO]: Test Logger - print!\n[WARNING]: Test Logger - THIS IS A TEST\n[INFO]: Test Logger - asd", this.output.toString().trim());
+    }
+
+    @Test
+    public void testErrorLogging() {
+        this.logger.setLevel(Level.ERROR);
+        this.logger.info("print!");
+        this.logger.error("blah");
+
+        assertEquals("[ERROR]: Test Logger - blah", this.output.toString().trim());
     }
 
     @Test
