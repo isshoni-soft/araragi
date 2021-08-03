@@ -13,6 +13,7 @@
         <module>logging</module>
         <module>async</module>
         <module>native</module>
+        <module>annotation</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -21,10 +22,21 @@
         <araragi.junit.version>4.13.2</araragi.junit.version>
         <araragi.mockito.version>3.11.0</araragi.mockito.version>
         <araragi.powermock.version>2.0.9</araragi.powermock.version>
+        <araragi.compiler.version>3.8.1</araragi.compiler.version>
+        <araragi.resource.version>3.1.0</araragi.resource.version>
+        <araragi.surefire.version>3.0.0-M4</araragi.surefire.version>
+        <araragi.compiled.encoding>UTF-8</araragi.compiled.encoding>
+        <araragi.resource.encoding>UTF-8</araragi.resource.encoding>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>tv.isshoni.araragi</groupId>
+                <artifactId>annotation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>tv.isshoni.araragi</groupId>
                 <artifactId>native</artifactId>
@@ -86,29 +98,50 @@
     </dependencyManagement>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${araragi.compiler.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${araragi.resource.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${araragi.surefire.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
                 <configuration>
                     <source>${araragi.java.version}</source>
                     <target>${araragi.java.version}</target>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${araragi.compiled.encoding}</encoding>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${araragi.resource.encoding}</encoding>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M4</version>
                 <configuration>
                     <argLine>
                         --add-opens java.base/java.lang=ALL-UNNAMED
@@ -121,5 +154,4 @@
             </plugin>
         </plugins>
     </build>
-    
 </project>
