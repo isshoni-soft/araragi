@@ -102,9 +102,14 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
+    public IPreparedAnnotationProcessor prepare(Annotation annotation, IAnnotationProcessor<Annotation> processor) {
+        return new PreparedAnnotationProcessor(annotation, processor);
+    }
+
+    @Override
     public List<IPreparedAnnotationProcessor> toExecutionList(Collection<Annotation> annotations) {
         return convertCollectionToProcessorStream(annotations)
-                .map(PreparedAnnotationProcessor::new)
+                .map(this::prepare)
                 .sorted()
                 .collect(Collectors.toList());
     }

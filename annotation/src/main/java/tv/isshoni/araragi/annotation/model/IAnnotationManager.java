@@ -29,6 +29,8 @@ public interface IAnnotationManager {
 
     Collection<Class<? extends Annotation>> getManagedAnnotations();
 
+    IPreparedAnnotationProcessor prepare(Annotation annotation, IAnnotationProcessor<Annotation> processor);
+
     List<IPreparedAnnotationProcessor> toExecutionList(Collection<Annotation> annotations);
 
     List<Annotation> getManagedAnnotationsOn(AnnotatedElement element);
