@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public interface IAnnotationManager {
 
@@ -18,6 +19,8 @@ public interface IAnnotationManager {
     void register(Class<? extends Annotation>[] annotations, IAnnotationProcessor<?>... processors);
 
     void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors);
+
+    void register(Class<? extends IAnnotationProcessor> processor, BiFunction<Annotation, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter);
 
     <T extends Annotation> void register(Class<T> annotation, IAnnotationProcessor<?>... processors);
 

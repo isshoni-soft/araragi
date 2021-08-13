@@ -26,5 +26,10 @@
             <groupId>tv.isshoni.araragi</groupId>
             <artifactId>logging</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>tv.isshoni.araragi</groupId>
+            <artifactId>native</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -5,6 +5,7 @@ import tv.isshoni.araragi.annotation.model.IAnnotationManager;
 import tv.isshoni.araragi.annotation.model.IAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.machine.reflection.InheritanceCrawler;
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
@@ -16,15 +17,22 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class AnnotationManager implements IAnnotationManager {
 
     protected final Map<Class<? extends Annotation>, List<IAnnotationProcessor<?>>> annotationProcessors;
 
+    protected final Map<Class<? extends IAnnotationProcessor>, BiFunction<Annotation, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor>> preparations;
+
     public AnnotationManager() {
         this.annotationProcessors = new ConcurrentHashMap<>();
+        this.preparations = new ConcurrentHashMap<>();
+
+        register(IAnnotationProcessor.class, PreparedAnnotationProcessor::new);
     }
 
     @Override
@@ -60,6 +68,11 @@ public class AnnotationManager implements IAnnotationManager {
         register(annotation, Arrays.stream(processors)
                 .map(this::construct)
                 .toArray(IAnnotationProcessor<?>[]::new));
+    }
+
+    @Override
+    public void register(Class<? extends IAnnotationProcessor> processor, BiFunction<Annotation, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter) {
+        this.preparations.put(processor, converter);
     }
 
     @Override
@@ -103,7 +116,15 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public IPreparedAnnotationProcessor prepare(Annotation annotation, IAnnotationProcessor<Annotation> processor) {
-        return new PreparedAnnotationProcessor(annotation, processor);
+        Optional<Class<? super IAnnotationProcessor<Annotation>>> processorTypeOptional = getProcessorType((Class<? super IAnnotationProcessor<Annotation>>) processor.getClass());
+
+        if (processorTypeOptional.isEmpty()) {
+            throw new IllegalStateException("Unable to find annotation preparer for processor: " + processor.getClass().getName());
+        }
+
+        Class<? super IAnnotationProcessor<Annotation>> processorType = processorTypeOptional.get();
+
+        return this.preparations.get(processorType).apply(annotation, processor);
     }
 
     @Override
@@ -164,5 +185,21 @@ public class AnnotationManager implements IAnnotationManager {
         return Streams.to(annotations)
                 .flatMapToPair(a -> Streams.to(get(a.annotationType()))
                         .mapToPair(c -> a, p -> (IAnnotationProcessor<A>) p));
+    }
+
+    private Optional<Class<? super IAnnotationProcessor<Annotation>>> getProcessorType(Class<? super IAnnotationProcessor<Annotation>> processor) {
+        InheritanceCrawler<IAnnotationProcessor<Annotation>> crawler = new InheritanceCrawler<>(processor);
+
+        Class<? super IAnnotationProcessor<Annotation>> result = null;
+
+        while (result == null && crawler.hasNext()) {
+            Class<? super IAnnotationProcessor<Annotation>> current = crawler.next();
+
+            if (this.preparations.containsKey(current)) {
+                result = current;
+            }
+        }
+
+        return Optional.ofNullable(result);
     }
 }
