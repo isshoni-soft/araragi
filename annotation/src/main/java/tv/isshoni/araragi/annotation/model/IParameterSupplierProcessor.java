@@ -4,5 +4,5 @@ import java.lang.annotation.Annotation;
 
 public interface IParameterSupplierProcessor<A extends Annotation, O> extends IAnnotationProcessor<A> {
 
-    O supply(A annotation);
+    O supply(A annotation, O previous);
 }

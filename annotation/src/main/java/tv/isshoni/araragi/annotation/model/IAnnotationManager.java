@@ -4,6 +4,7 @@ import tv.isshoni.araragi.data.Pair;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Executable;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -42,7 +43,11 @@ public interface IAnnotationManager {
 
     boolean hasManagedAnnotation(AnnotatedElement element);
 
+    boolean isManagedAnnotation(Annotation annotation);
+
     <A extends Annotation> boolean hasConflictingAnnotations(Collection<A> annotations);
+
+    Object[] prepareExecutable(Executable executable);
 
     int getTotalProcessors();
 }

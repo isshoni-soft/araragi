@@ -11,6 +11,7 @@ import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -167,11 +168,24 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
+    public boolean isManagedAnnotation(Annotation annotation) {
+        return false;
+    }
+
+    @Override
     public <A extends Annotation> boolean hasConflictingAnnotations(Collection<A> annotations) {
         return convertCollectionToProcessorStream(annotations)
                 .anyMatch(p -> p.getSecond().getIncompatibleWith(p.getFirst())
                         .stream()
                         .anyMatch(c -> annotations.stream().map(Annotation::annotationType).anyMatch(c::equals)));
+    }
+
+    @Override
+    public Object[] prepareExecutable(Executable executable) {
+        Arrays.stream(executable.getParameterAnnotations())
+                .map(a -> Arrays.stream(a).filter())
+
+        return null;
     }
 
     @Override
