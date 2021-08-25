@@ -12,7 +12,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 /**
- * This is taken from the JDK because it was all private scoped but I needed it
+ * This is taken from the JDK because it was all private scoped, but I needed it.
+ *
+ * This code is excluded from any project-level licenses and is under the license that the JDK uses.
+ * (I'll remove this if these helper objects became publicly referencable pretty please)
  */
 public class SimpleCollector<T, A, R> implements Collector<T, A, R> {
 

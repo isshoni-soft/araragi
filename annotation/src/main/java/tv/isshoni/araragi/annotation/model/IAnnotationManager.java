@@ -4,14 +4,20 @@ import tv.isshoni.araragi.data.Pair;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public interface IAnnotationManager {
 
-    <T extends Annotation> void unregister(Class<T> annotation);
+    void unregisterAnnotation(Class<? extends Annotation> annotation);
+
+    void unregisterProcessorConverter(Class<? extends IAnnotationProcessor> processor);
+
+    void unregisterExecutableInvoker(Class<? extends Executable> executable);
 
     void discover(Class<? extends Annotation> annotation);
 
@@ -23,15 +29,21 @@ public interface IAnnotationManager {
 
     void register(Class<? extends IAnnotationProcessor> processor, BiFunction<Annotation, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter);
 
-    <T extends Annotation> void register(Class<T> annotation, IAnnotationProcessor<?>... processors);
+    void register(Class<? extends Annotation> annotation, IAnnotationProcessor<?>... processors);
 
-    IAnnotationProcessor<?> construct(Class<? extends IAnnotationProcessor<?>> processor);
+    <T extends Executable> void register(Class<T> executable, IExecutableInvoker<T> invoker);
+
+    <T extends Executable> Object execute(T executable, Object target) throws Exception;
+
+    Constructor<?> discoverConstructor(Class<?> clazz) throws NoSuchMethodException;
 
     <A extends Annotation> int calculateWeight(Collection<A> annotations);
 
     List<IAnnotationProcessor<?>> get(Class<? extends Annotation> annotation);
 
     Collection<Class<? extends Annotation>> getManagedAnnotations();
+
+    Collection<Class<? extends Annotation>> getAnnotationsWithProcessorType(Class<? extends IAnnotationProcessor> processor);
 
     IPreparedAnnotationProcessor prepare(Annotation annotation, IAnnotationProcessor<Annotation> processor);
 

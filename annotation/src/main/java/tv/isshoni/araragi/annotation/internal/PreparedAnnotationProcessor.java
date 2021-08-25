@@ -5,7 +5,7 @@ import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 
 import java.lang.annotation.Annotation;
 
-public class PreparedAnnotationProcessor implements IPreparedAnnotationProcessor {
+public class PreparedAnnotationProcessor implements IPreparedAnnotationProcessor<IAnnotationProcessor<Annotation>> {
 
     protected final Annotation annotation;
 

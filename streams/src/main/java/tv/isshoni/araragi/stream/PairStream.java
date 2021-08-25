@@ -10,17 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterator;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -66,6 +56,11 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     @Override
     public <R> AraragiStream<R> map(BiFunction<? super F, ? super S, ? extends R> mapper) {
         return this.stream.map(p -> mapper.apply(p.getFirst(), p.getSecond()));
+    }
+
+    @Override
+    public IPairStream<F, S> filter(BiPredicate<F, S> predicate) {
+        return new PairStream<>(this.stream.filter(p -> predicate.test(p.getFirst(), p.getSecond())));
     }
 
     @Override
@@ -126,7 +121,7 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
-    public <R> AraragiStream<Pair<F, S>> tempCast(Class<R> clazz, Consumer<IAraragiStream<R>> castedStreamConsumer) {
+    public <R extends Pair<F, S>> AraragiStream<Pair<F, S>> tempCast(Class<R> clazz, Consumer<IAraragiStream<R>> castedStreamConsumer) {
         return this.stream.tempCast(clazz, castedStreamConsumer);
     }
 
@@ -138,6 +133,11 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     @Override
     public <NF, NS> PairStream<NF, NS> flatMapToPair(Function<? super Pair<F, S>, ? extends Stream<? extends Pair<NF, NS>>> mapper) {
         return this.stream.flatMapToPair(mapper);
+    }
+
+    @Override
+    public Object collapse(BiFunction<? super Pair<F, S>, Object, Object> mapper) {
+        return this.stream.collapse(mapper);
     }
 
     @Override

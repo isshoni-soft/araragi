@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public interface IPreparedAnnotationProcessor extends Comparable<IPreparedAnnotationProcessor> {
+public interface IPreparedAnnotationProcessor<T extends IAnnotationProcessor<Annotation>> extends Comparable<IPreparedAnnotationProcessor<T>> {
 
     default void executeClass(Class<?> clazz) {
         this.getProcessor().executeClass(clazz, this.getAnnotation());
@@ -24,5 +24,5 @@ public interface IPreparedAnnotationProcessor extends Comparable<IPreparedAnnota
 
     Annotation getAnnotation();
 
-    IAnnotationProcessor<Annotation> getProcessor();
+    T getProcessor();
 }

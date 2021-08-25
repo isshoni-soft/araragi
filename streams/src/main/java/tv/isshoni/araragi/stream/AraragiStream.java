@@ -76,7 +76,7 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     }
 
     @Override
-    public <R> AraragiStream<T> tempCast(Class<R> clazz, Consumer<IAraragiStream<R>> castedStreamConsumer) {
+    public <R extends T> AraragiStream<T> tempCast(Class<R> clazz, Consumer<IAraragiStream<R>> castedStreamConsumer) {
         return null;
     }
 
@@ -88,6 +88,11 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     @Override
     public <F, S> PairStream<F, S> flatMapToPair(Function<? super T, ? extends Stream<? extends Pair<F, S>>> mapper) {
         return new PairStream<>(this.stream.flatMap(mapper));
+    }
+
+    @Override
+    public Object collapse(BiFunction<? super T, Object, Object> mapper) {
+        return null;
     }
 
     @Override

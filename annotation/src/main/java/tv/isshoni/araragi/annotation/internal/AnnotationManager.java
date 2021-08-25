@@ -1,18 +1,15 @@
 package tv.isshoni.araragi.annotation.internal;
 
+import tv.isshoni.araragi.annotation.DefaultConstructor;
 import tv.isshoni.araragi.annotation.Processor;
-import tv.isshoni.araragi.annotation.model.IAnnotationManager;
-import tv.isshoni.araragi.annotation.model.IAnnotationProcessor;
-import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
+import tv.isshoni.araragi.annotation.model.*;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.machine.reflection.InheritanceCrawler;
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Executable;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -21,7 +18,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AnnotationManager implements IAnnotationManager {
 
@@ -29,16 +28,31 @@ public class AnnotationManager implements IAnnotationManager {
 
     protected final Map<Class<? extends IAnnotationProcessor>, BiFunction<Annotation, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor>> preparations;
 
+    protected final Map<Class<? extends Executable>, IExecutableInvoker> executableInvokers;
+
     public AnnotationManager() {
         this.annotationProcessors = new ConcurrentHashMap<>();
         this.preparations = new ConcurrentHashMap<>();
+        this.executableInvokers = new ConcurrentHashMap<>();
 
         register(IAnnotationProcessor.class, PreparedAnnotationProcessor::new);
+        register(Method.class, (m, o) -> m.invoke(o, this.prepareExecutable(m)));
+        register(Constructor.class, (c, o) -> c.newInstance(this.prepareExecutable(c)));
     }
 
     @Override
-    public <T extends Annotation> void unregister(Class<T> annotation) {
+    public void unregisterAnnotation(Class<? extends Annotation> annotation) {
         this.annotationProcessors.remove(annotation);
+    }
+
+    @Override
+    public void unregisterProcessorConverter(Class<? extends IAnnotationProcessor> processor) {
+        this.preparations.remove(processor);
+    }
+
+    @Override
+    public void unregisterExecutableInvoker(Class<? extends Executable> executable) {
+        this.executableInvokers.remove(executable);
     }
 
     @Override
@@ -66,7 +80,7 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors) {
-        register(annotation, Arrays.stream(processors)
+        register(annotation, Streams.to(processors)
                 .map(this::construct)
                 .toArray(IAnnotationProcessor<?>[]::new));
     }
@@ -77,7 +91,7 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public <T extends Annotation> void register(Class<T> annotation, IAnnotationProcessor<?>... processors) {
+    public void register(Class<? extends Annotation> annotation, IAnnotationProcessor<?>... processors) {
         this.annotationProcessors.compute(annotation, (a, v) -> {
             if (v == null) {
                 v = new LinkedList<>();
@@ -90,12 +104,26 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public IAnnotationProcessor<?> construct(Class<? extends IAnnotationProcessor<?>> processor) {
-        try {
-            return processor.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e); // TODO: Add a specialized exception
-        }
+    public <T extends Executable> void register(Class<T> executable, IExecutableInvoker<T> invoker) {
+        this.executableInvokers.put(executable, invoker);
+    }
+
+    @Override
+    public <T extends Executable> Object execute(T executable, Object target) throws Exception {
+        return this.executableInvokers.get(executable.getClass()).invoke(executable, target);
+    }
+
+    @Override
+    public Constructor<?> discoverConstructor(Class<?> clazz) throws NoSuchMethodException {
+        Constructor<?> defaultConstructor = clazz.getConstructor();
+
+        return Streams.to(clazz.getDeclaredConstructors())
+                .filter(c -> Streams.to(c.getParameterAnnotations())
+                        .flatMap(a -> Streams.to(a)
+                                .map(Annotation::annotationType))
+                        .anyMatch(getAnnotationsWithProcessorType(IParameterSupplier.class)::contains))
+                .find(c -> c.isAnnotationPresent(DefaultConstructor.class), Stream::findFirst)
+                .orElse(defaultConstructor);
     }
 
     @Override
@@ -113,6 +141,16 @@ public class AnnotationManager implements IAnnotationManager {
     @Override
     public Collection<Class<? extends Annotation>> getManagedAnnotations() {
         return this.annotationProcessors.keySet();
+    }
+
+    @Override
+    public Collection<Class<? extends Annotation>> getAnnotationsWithProcessorType(Class<? extends IAnnotationProcessor> processor) {
+        return Streams.to(this.annotationProcessors)
+                .filter((a, l) -> l.stream()
+                        .map(Object::getClass)
+                        .anyMatch(processor::isAssignableFrom))
+                .mapFirst()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -182,10 +220,16 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public Object[] prepareExecutable(Executable executable) {
-        Arrays.stream(executable.getParameterAnnotations())
-                .map(a -> Arrays.stream(a).filter())
-
-        return null;
+        return Streams.to(executable.getParameterAnnotations())
+                .map(a -> Streams.to(a)
+                        .filter(this::isManagedAnnotation)
+                        .collect(Collectors.toList()))
+                .map(this::toExecutionList)
+                .map(l -> Streams.to(l)
+                        .filter(p -> IPreparedParameterSupplier.class.isAssignableFrom(p.getClass()))
+                        .cast(IPreparedParameterSupplier.class)
+                        .collapse((p, o) -> p.supplyParameter(p.getAnnotation(), o)))
+                .toArray();
     }
 
     @Override

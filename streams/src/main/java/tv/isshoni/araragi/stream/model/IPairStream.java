@@ -5,6 +5,7 @@ import tv.isshoni.araragi.data.Pair;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 public interface IPairStream<F, S> extends IAraragiStream<Pair<F, S>> {
@@ -16,6 +17,8 @@ public interface IPairStream<F, S> extends IAraragiStream<Pair<F, S>> {
     <NF, NS> IPairStream<NF, NS> map(Function<? super F, ? extends NF> firstMapper, Function<? super S, ? extends NS> secondMapper);
 
     <R> IAraragiStream<R> map(BiFunction<? super F, ? super S, ? extends R> mapper);
+
+    IPairStream<F, S> filter(BiPredicate<F, S> predicate);
 
     IAraragiStream<F> mapFirst();
 

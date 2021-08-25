@@ -3,6 +3,7 @@ package tv.isshoni.araragi.stream;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.stream.model.IAraragiStream;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,14 @@ public final class Streams {
         return to(result);
     }
 
+    public static <T, S extends IAraragiStream<T>> S to(T[] array, Function<Collection<T>, S> constructor) {
+        return constructor.apply(Arrays.asList(array));
+    }
+
+    public static <T> AraragiStream<T> to(T[] array) {
+        return to(Arrays.stream(array));
+    }
+
     public static <T, S extends IAraragiStream<T>> S to(Collection<T> collection, Function<Collection<T>, S> constructor) {
         return constructor.apply(collection);
     }
@@ -65,6 +74,7 @@ public final class Streams {
         return new PairStream<>(map);
     }
 
+    // TODO: Rewrite me so that I don't need to rely on SimpleCollector, as it was shortcut.
     public static <F, S> Collector<Pair<F, S>, ?, Map<F, S>> collectPairsToMap() {
         return new SimpleCollector<>(HashMap::new,
                 SimpleCollector.uniqKeysMapAccumulator(Pair::getFirst, Pair::getSecond),
