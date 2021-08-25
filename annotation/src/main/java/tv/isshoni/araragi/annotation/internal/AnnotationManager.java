@@ -81,7 +81,20 @@ public class AnnotationManager implements IAnnotationManager {
     @Override
     public void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors) {
         register(annotation, Streams.to(processors)
-                .map(this::construct)
+                .map(c -> {
+                    try {
+                        return this.discoverConstructor(c);
+                    } catch (NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .map(c -> {
+                    try {
+                        return this.execute(c, null);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .toArray(IAnnotationProcessor<?>[]::new));
     }
 

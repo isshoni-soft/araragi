@@ -121,11 +121,6 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
-    public <R extends Pair<F, S>> AraragiStream<Pair<F, S>> tempCast(Class<R> clazz, Consumer<IAraragiStream<R>> castedStreamConsumer) {
-        return this.stream.tempCast(clazz, castedStreamConsumer);
-    }
-
-    @Override
     public <NF, NS> PairStream<NF, NS> mapToPair(Function<? super Pair<F, S>, ? extends NF> firstMapper, Function<? super Pair<F, S>, ? extends NS> secondMapper) {
         return this.stream.mapToPair(firstMapper, secondMapper);
     }
@@ -138,6 +133,11 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     @Override
     public Object collapse(BiFunction<? super Pair<F, S>, Object, Object> mapper) {
         return this.stream.collapse(mapper);
+    }
+
+    @Override
+    public Optional<Pair<F, S>> find(Predicate<Pair<F, S>> selector, Function<IAraragiStream<Pair<F, S>>, Optional<Pair<F, S>>> otherwise) {
+        return this.stream.find(selector, otherwise);
     }
 
     @Override

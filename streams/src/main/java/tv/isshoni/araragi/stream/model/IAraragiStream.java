@@ -17,11 +17,7 @@ public interface IAraragiStream<T> extends Stream<T> {
 
     IAraragiStream<T> expand(Function<? super T, Collection<? extends T>>... collectionSupplier);
 
-    @Deprecated
     <R> IAraragiStream<R> cast(Class<R> clazz);
-
-    @Deprecated
-    <R extends T> IAraragiStream<T> tempCast(Class<R> clazz, Consumer<IAraragiStream<R>> castedStreamConsumer);
 
     <F, S> IPairStream<F, S> mapToPair(Function<? super T, ? extends F> firstMapper, Function<? super T, ? extends S> secondMapper);
 
@@ -29,6 +25,5 @@ public interface IAraragiStream<T> extends Stream<T> {
 
     Object collapse(BiFunction<? super T, Object, Object> mapper);
 
-    @Deprecated
     Optional<T> find(Predicate<T> selector, Function<IAraragiStream<T>, Optional<T>> otherwise);
 }

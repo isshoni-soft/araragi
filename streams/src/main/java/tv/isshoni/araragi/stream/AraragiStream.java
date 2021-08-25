@@ -72,12 +72,7 @@ public class AraragiStream<T> implements IAraragiStream<T> {
 
     @Override
     public <R> AraragiStream<R> cast(Class<R> clazz) {
-        return null;
-    }
-
-    @Override
-    public <R extends T> AraragiStream<T> tempCast(Class<R> clazz, Consumer<IAraragiStream<R>> castedStreamConsumer) {
-        return null;
+        return Streams.to(this.stream.map(clazz::cast));
     }
 
     @Override
@@ -93,6 +88,17 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     @Override
     public Object collapse(BiFunction<? super T, Object, Object> mapper) {
         return null;
+    }
+
+    @Override
+    public Optional<T> find(Predicate<T> selector, Function<IAraragiStream<T>, Optional<T>> otherwise) {
+        Optional<T> result = Streams.to(this.stream).filter(selector).findFirst();
+
+        if (result.isPresent()) {
+            return result;
+        }
+
+        return otherwise.apply(Streams.to(this.stream));
     }
 
     @Override
