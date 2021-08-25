@@ -1,5 +1,6 @@
 package tv.isshoni.araragi.annotation.internal;
 
+import tv.isshoni.araragi.annotation.AttachTo;
 import tv.isshoni.araragi.annotation.DefaultConstructor;
 import tv.isshoni.araragi.annotation.Processor;
 import tv.isshoni.araragi.annotation.model.*;
@@ -56,12 +57,21 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public void discover(Class<? extends Annotation> annotation) {
+    public void discoverAnnotation(Class<? extends Annotation> annotation) {
         if (!annotation.isAnnotationPresent(Processor.class)) {
-            throw new RuntimeException(annotation.getName() + " does not have a processor annotation");
+            throw new RuntimeException(annotation.getName() + " does not have a @Processor annotation");
         }
 
         register(annotation, annotation.getAnnotation(Processor.class).value());
+    }
+
+    @Override
+    public void discoverProcessor(Class<? extends IAnnotationProcessor<Annotation>> processor) {
+        if (!processor.isAnnotationPresent(AttachTo.class)) {
+            throw new RuntimeException(processor.getName() + " does not have an @AttachTo annotation");
+        }
+
+        register(processor.getAnnotation(AttachTo.class).value(), processor);
     }
 
     @Override
@@ -85,7 +95,7 @@ public class AnnotationManager implements IAnnotationManager {
                     try {
                         return this.discoverConstructor(c);
                     } catch (NoSuchMethodException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException(e); // TODO: Write custom exception!
                     }
                 })
                 .map(c -> {

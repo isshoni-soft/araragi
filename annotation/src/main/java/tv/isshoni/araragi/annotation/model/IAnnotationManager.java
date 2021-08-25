@@ -19,7 +19,9 @@ public interface IAnnotationManager {
 
     void unregisterExecutableInvoker(Class<? extends Executable> executable);
 
-    void discover(Class<? extends Annotation> annotation);
+    void discoverAnnotation(Class<? extends Annotation> annotation);
+
+    void discoverProcessor(Class<? extends IAnnotationProcessor<Annotation>> processor);
 
     void register(Class<? extends Annotation>[] annotations, Class<? extends IAnnotationProcessor<?>>... processors);
 
