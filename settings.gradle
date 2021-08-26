@@ -9,3 +9,5 @@ include(':async')
 include(':logging')
 include(':streams')
 include(':native')
+include(':collection')
+

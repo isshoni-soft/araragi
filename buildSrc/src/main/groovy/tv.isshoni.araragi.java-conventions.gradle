@@ -14,6 +14,16 @@ repositories {
     }
 }
 
+configurations {
+    ext.addPatchArgument = { String module_name ->
+        return ['--patch-module', "$module_name=${tasks.compileJava.destinationDirectory.asFile.get().path}"]
+    }
+
+    ext.addOpensArgument = { String base_name, String module_name ->
+        return ['--add-opens', "$base_name/$module_name=ALL-UNNAMED"]
+    }
+}
+
 group = 'tv.isshoni.araragi'
 version = '1.0.0-SNAPSHOT'
 java.sourceCompatibility = JavaVersion.VERSION_16

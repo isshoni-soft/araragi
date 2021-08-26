@@ -3,23 +3,29 @@ package tv.isshoni.araragi.annotation.internal;
 import tv.isshoni.araragi.annotation.AttachTo;
 import tv.isshoni.araragi.annotation.DefaultConstructor;
 import tv.isshoni.araragi.annotation.Processor;
-import tv.isshoni.araragi.annotation.model.*;
+import tv.isshoni.araragi.annotation.model.IAnnotationManager;
+import tv.isshoni.araragi.annotation.model.IAnnotationProcessor;
+import tv.isshoni.araragi.annotation.model.IExecutableInvoker;
+import tv.isshoni.araragi.annotation.model.IParameterSupplier;
+import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
+import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
+import tv.isshoni.araragi.collection.InheritedTypeMap;
 import tv.isshoni.araragi.data.Pair;
-import tv.isshoni.araragi.machine.reflection.InheritanceCrawler;
+
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,11 +38,13 @@ public class AnnotationManager implements IAnnotationManager {
     protected final Map<Class<? extends Executable>, IExecutableInvoker> executableInvokers;
 
     public AnnotationManager() {
-        this.annotationProcessors = new ConcurrentHashMap<>();
-        this.preparations = new ConcurrentHashMap<>();
-        this.executableInvokers = new ConcurrentHashMap<>();
+        this.annotationProcessors = new InheritedTypeMap<>();
+        this.preparations = new InheritedTypeMap<>();
+        this.executableInvokers = new InheritedTypeMap<>();
 
         register(IAnnotationProcessor.class, PreparedAnnotationProcessor::new);
+        register(IParameterSupplier.class, PreparedParameterSupplier::new);
+
         register(Method.class, (m, o) -> m.invoke(o, this.prepareExecutable(m)));
         register(Constructor.class, (c, o) -> c.newInstance(this.prepareExecutable(c)));
     }
@@ -91,13 +99,7 @@ public class AnnotationManager implements IAnnotationManager {
     @Override
     public void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors) {
         register(annotation, Streams.to(processors)
-                .map(c -> {
-                    try {
-                        return this.discoverConstructor(c);
-                    } catch (NoSuchMethodException e) {
-                        throw new RuntimeException(e); // TODO: Write custom exception!
-                    }
-                })
+                .map(this::discoverConstructor)
                 .map(c -> {
                     try {
                         return this.execute(c, null);
@@ -137,16 +139,19 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public Constructor<?> discoverConstructor(Class<?> clazz) throws NoSuchMethodException {
-        Constructor<?> defaultConstructor = clazz.getConstructor();
-
+    public Constructor<?> discoverConstructor(Class<?> clazz) {
         return Streams.to(clazz.getDeclaredConstructors())
                 .filter(c -> Streams.to(c.getParameterAnnotations())
-                        .flatMap(a -> Streams.to(a)
-                                .map(Annotation::annotationType))
+                        .flatMap(a -> Streams.to(a).map(Annotation::annotationType))
                         .anyMatch(getAnnotationsWithProcessorType(IParameterSupplier.class)::contains))
                 .find(c -> c.isAnnotationPresent(DefaultConstructor.class), Stream::findFirst)
-                .orElse(defaultConstructor);
+                .orElseGet(() -> {
+                    try {
+                        return clazz.getConstructor();
+                    } catch (NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     @Override
@@ -178,15 +183,7 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public IPreparedAnnotationProcessor prepare(Annotation annotation, IAnnotationProcessor<Annotation> processor) {
-        Optional<Class<? super IAnnotationProcessor<Annotation>>> processorTypeOptional = getProcessorType((Class<? super IAnnotationProcessor<Annotation>>) processor.getClass());
-
-        if (processorTypeOptional.isEmpty()) {
-            throw new IllegalStateException("Unable to find annotation preparer for processor: " + processor.getClass().getName());
-        }
-
-        Class<? super IAnnotationProcessor<Annotation>> processorType = processorTypeOptional.get();
-
-        return this.preparations.get(processorType).apply(annotation, processor);
+        return this.preparations.get(processor.getClass()).apply(annotation, processor);
     }
 
     @Override
@@ -223,14 +220,15 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public boolean hasManagedAnnotation(AnnotatedElement element) {
-        return Arrays.stream(element.getAnnotations())
+        return Streams.to(element.getAnnotations())
                 .map(Annotation::annotationType)
                 .anyMatch(this.annotationProcessors::containsKey);
     }
 
     @Override
     public boolean isManagedAnnotation(Annotation annotation) {
-        return false;
+        return Streams.to(this.annotationProcessors.keySet())
+                .anyMatch(m -> annotation.annotationType().equals(m));
     }
 
     @Override
@@ -266,21 +264,5 @@ public class AnnotationManager implements IAnnotationManager {
         return Streams.to(annotations)
                 .flatMapToPair(a -> Streams.to(get(a.annotationType()))
                         .mapToPair(c -> a, p -> (IAnnotationProcessor<A>) p));
-    }
-
-    private Optional<Class<? super IAnnotationProcessor<Annotation>>> getProcessorType(Class<? super IAnnotationProcessor<Annotation>> processor) {
-        InheritanceCrawler<IAnnotationProcessor<Annotation>> crawler = new InheritanceCrawler<>(processor);
-
-        Class<? super IAnnotationProcessor<Annotation>> result = null;
-
-        while (result == null && crawler.hasNext()) {
-            Class<? super IAnnotationProcessor<Annotation>> current = crawler.next();
-
-            if (this.preparations.containsKey(current)) {
-                result = current;
-            }
-        }
-
-        return Optional.ofNullable(result);
     }
 }

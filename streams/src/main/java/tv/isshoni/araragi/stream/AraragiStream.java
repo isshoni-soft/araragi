@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -87,18 +88,28 @@ public class AraragiStream<T> implements IAraragiStream<T> {
 
     @Override
     public Object collapse(BiFunction<? super T, Object, Object> mapper) {
-        return null;
+        AtomicReference<Object> reference = new AtomicReference<>();
+
+        this.stream.forEachOrdered(t -> {
+            Object result = mapper.apply(t, reference.get());
+
+            reference.set(result);
+        });
+
+        return reference.get();
     }
 
     @Override
     public Optional<T> find(Predicate<T> selector, Function<IAraragiStream<T>, Optional<T>> otherwise) {
-        Optional<T> result = Streams.to(this.stream).filter(selector).findFirst();
+        List<T> snapshot = this.stream.collect(Collectors.toList());
+
+        Optional<T> result = Streams.to(snapshot).filter(selector).findFirst();
 
         if (result.isPresent()) {
             return result;
         }
 
-        return otherwise.apply(Streams.to(this.stream));
+        return otherwise.apply(Streams.to(snapshot));
     }
 
     @Override

@@ -37,7 +37,7 @@ public interface IAnnotationManager {
 
     <T extends Executable> Object execute(T executable, Object target) throws Exception;
 
-    Constructor<?> discoverConstructor(Class<?> clazz) throws NoSuchMethodException;
+    Constructor<?> discoverConstructor(Class<?> clazz);
 
     <A extends Annotation> int calculateWeight(Collection<A> annotations);
 
