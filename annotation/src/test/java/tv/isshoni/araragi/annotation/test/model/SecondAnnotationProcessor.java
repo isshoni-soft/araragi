@@ -6,7 +6,7 @@ import tv.isshoni.araragi.annotation.test.TestAnnotationManager;
 public class SecondAnnotationProcessor implements IAnnotationProcessor<Second> {
 
     public SecondAnnotationProcessor(@TestAnnotation(TestAnnotationManager.EXPECTED_VALUE) String str) {
-        System.err.println("--- Construct SecondAnnotationProcessor ---");
+        System.err.println("--- Construct SecondAnnotationProcessor --- (" + str + ")");
         System.out.print(str);
     }
 }

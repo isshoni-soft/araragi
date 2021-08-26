@@ -48,6 +48,7 @@ public class TestAnnotationManager {
     }
 
     public void aMethod(@TestAnnotation(EXPECTED_VALUE) String str) {
+        System.err.println("--- Execute aMethod --- (" + str + ")");
         System.out.print(str);
     }
 }
