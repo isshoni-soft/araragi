@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation project(':streams')
     implementation project(':native')
+    implementation project(':data')
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.11.0'

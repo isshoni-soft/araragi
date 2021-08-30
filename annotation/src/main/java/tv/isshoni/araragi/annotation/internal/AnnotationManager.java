@@ -9,7 +9,7 @@ import tv.isshoni.araragi.annotation.model.IExecutableInvoker;
 import tv.isshoni.araragi.annotation.model.IParameterSupplier;
 import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
-import tv.isshoni.araragi.collection.InheritedTypeMap;
+import tv.isshoni.araragi.collection.TypeMap;
 import tv.isshoni.araragi.data.Pair;
 
 import tv.isshoni.araragi.stream.PairStream;
@@ -38,9 +38,9 @@ public class AnnotationManager implements IAnnotationManager {
     protected final Map<Class<? extends Executable>, IExecutableInvoker> executableInvokers;
 
     public AnnotationManager() {
-        this.annotationProcessors = new InheritedTypeMap<>();
-        this.preparations = new InheritedTypeMap<>();
-        this.executableInvokers = new InheritedTypeMap<>();
+        this.annotationProcessors = new TypeMap<>();
+        this.preparations = new TypeMap<>();
+        this.executableInvokers = new TypeMap<>();
 
         register(IAnnotationProcessor.class, PreparedAnnotationProcessor::new);
         register(IParameterSupplier.class, PreparedParameterSupplier::new);
