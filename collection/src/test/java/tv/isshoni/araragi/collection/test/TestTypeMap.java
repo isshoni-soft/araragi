@@ -22,6 +22,7 @@ public class TestTypeMap {
 
         assertEquals("NUMBER!!!", STRING_TYPE_MAP.getChild(Integer.class));
         assertEquals("NUMBER!!!", STRING_TYPE_MAP.quickGet(Integer.class));
+        assertEquals("NUMBER!!!", STRING_TYPE_MAP.getChild(Integer.class));
     }
 
     @Test
@@ -30,5 +31,6 @@ public class TestTypeMap {
 
         assertEquals("INTEGER!!!", STRING_TYPE_MAP.getParent(Number.class));
         assertEquals("INTEGER!!!", STRING_TYPE_MAP.quickGet(Number.class));
+        assertEquals("INTEGER!!!", STRING_TYPE_MAP.getParent(Number.class));
     }
 }
