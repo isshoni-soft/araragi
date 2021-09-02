@@ -11,7 +11,6 @@ import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
 import tv.isshoni.araragi.collection.TypeMap;
 import tv.isshoni.araragi.data.Pair;
-
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
@@ -149,7 +148,7 @@ public class AnnotationManager implements IAnnotationManager {
                     try {
                         return clazz.getConstructor();
                     } catch (NoSuchMethodException e) {
-                        throw new RuntimeException(e);
+                        return null;
                     }
                 });
     }

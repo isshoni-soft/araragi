@@ -2,14 +2,11 @@ package tv.isshoni.araragi.collection;
 
 import tv.isshoni.araragi.stream.Streams;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -88,26 +85,12 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
         K clazz = (K) o;
 
-        Queue<K> classQueue = new LinkedList<>();
-        classQueue.add(clazz);
+        // TODO: Honestly, this algorithm sucks and needs to be updated to something where n isn't the number of map entries, defeats the purpose of a map!
+        for (Map.Entry<K, V> entry : this.entrySet()) {
+            K current = entry.getKey();
 
-        while (!classQueue.isEmpty()) {
-            Optional<K> currentOptional = Optional.ofNullable(classQueue.poll());
-
-            if (!clazz.getSuperclass().equals(Object.class)) {
-                classQueue.add((K) clazz.getSuperclass());
-            }
-
-            if (clazz.getInterfaces().length > 0) {
-                classQueue.addAll(Arrays.asList((K[]) clazz.getInterfaces()));
-            }
-
-            if (currentOptional.isPresent()) {
-                K current = currentOptional.get();
-
-                if (containsKey(current)) {
-                    return registerAlias(clazz, quickGet(current));
-                }
+            if (current.isAssignableFrom(clazz)) {
+                return registerAlias(clazz, quickGet(current));
             }
         }
 
@@ -123,6 +106,7 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
         K clazz = (K) o;
 
+        // TODO: Honestly, this algorithm sucks and needs to be updated to something where n isn't the number of map entries, defeats the purpose of a map!
         for (Map.Entry<K, V> entry : this.entrySet()) {
             if (clazz.isAssignableFrom(entry.getKey())) {
                 return registerAlias(clazz, quickGet(entry.getKey()));

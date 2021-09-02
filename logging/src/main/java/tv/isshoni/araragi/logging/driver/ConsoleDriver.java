@@ -10,8 +10,10 @@ public class ConsoleDriver implements ILoggerDriver {
     public void process(String message, ILevel level) {
         if (level.equals(Level.ERROR)) {
             System.err.println(message);
+            System.err.flush();
         } else {
             System.out.println(message);
+            System.out.flush();
         }
     }
 }
