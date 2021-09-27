@@ -2,11 +2,14 @@ package tv.isshoni.araragi.collection;
 
 import tv.isshoni.araragi.stream.Streams;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,16 @@ import java.util.stream.Collectors;
 public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
     private Map<K, Set<K>> KEY_ALIASES_MAP = new HashMap<>();
+
+    private final boolean parentFirst;
+
+    public TypeMap() {
+        this(true);
+    }
+
+    public TypeMap(boolean parentFirst) {
+        this.parentFirst = parentFirst;
+    }
 
     @Override
     public boolean containsKey(Object key) {
@@ -67,9 +80,13 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
     @Override
     public V get(Object o) {
+        if (this.parentFirst) {
+            return Optional.ofNullable(getParent(o))
+                    .orElseGet(() -> getChild(o));
+        }
+
         return Optional.ofNullable(getChild(o))
-                .or(() -> Optional.ofNullable(getParent(o)))
-                .orElse(null);
+                .orElseGet(() -> getParent(o));
     }
 
     public V quickGet(Object o) {
@@ -85,11 +102,11 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
         K clazz = (K) o;
 
-        // TODO: Honestly, this algorithm sucks and needs to be updated to something where n isn't the number of map entries, defeats the purpose of a map!
+        // TODO: Add a small check to make sure that the closest child value is returned.
         for (Map.Entry<K, V> entry : this.entrySet()) {
             K current = entry.getKey();
 
-            if (current.isAssignableFrom(clazz)) {
+            if (clazz.isAssignableFrom(current)) {
                 return registerAlias(clazz, quickGet(current));
             }
         }
@@ -106,10 +123,26 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
         K clazz = (K) o;
 
-        // TODO: Honestly, this algorithm sucks and needs to be updated to something where n isn't the number of map entries, defeats the purpose of a map!
-        for (Map.Entry<K, V> entry : this.entrySet()) {
-            if (clazz.isAssignableFrom(entry.getKey())) {
-                return registerAlias(clazz, quickGet(entry.getKey()));
+        Queue<Class<?>> classes = new LinkedList<>();
+        classes.add(clazz);
+
+        while (!classes.isEmpty()) {
+            Class<?> current = classes.poll();
+
+            if (Objects.isNull(current)) {
+                continue;
+            }
+
+            if (Objects.nonNull(current.getSuperclass())) {
+                classes.add(current.getSuperclass());
+            }
+
+            if (current.getInterfaces().length != 0) {
+                classes.addAll(Arrays.asList(current.getInterfaces()));
+            }
+
+            if (containsKey(current)) {
+                return registerAlias(clazz, quickGet(current));
             }
         }
 

@@ -259,7 +259,7 @@ public class AnnotationManager implements IAnnotationManager {
                 .sum();
     }
 
-    private <A extends Annotation> PairStream<A, IAnnotationProcessor<A>> convertCollectionToProcessorStream(Collection<A> annotations) {
+    protected <A extends Annotation> PairStream<A, IAnnotationProcessor<A>> convertCollectionToProcessorStream(Collection<A> annotations) {
         return Streams.to(annotations)
                 .flatMapToPair(a -> Streams.to(get(a.annotationType()))
                         .mapToPair(c -> a, p -> (IAnnotationProcessor<A>) p));

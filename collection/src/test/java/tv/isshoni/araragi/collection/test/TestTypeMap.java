@@ -17,20 +17,20 @@ public class TestTypeMap {
     }
 
     @Test
-    public void testGetChild() {
+    public void testGetParent() {
         STRING_TYPE_MAP.put(Number.class, "NUMBER!!!");
 
-        assertEquals("NUMBER!!!", STRING_TYPE_MAP.getChild(Integer.class));
+        assertEquals("NUMBER!!!", STRING_TYPE_MAP.getParent(Integer.class));
         assertEquals("NUMBER!!!", STRING_TYPE_MAP.quickGet(Integer.class));
-        assertEquals("NUMBER!!!", STRING_TYPE_MAP.getChild(Integer.class));
+        assertEquals("NUMBER!!!", STRING_TYPE_MAP.getParent(Integer.class));
     }
 
     @Test
-    public void testGetParent() {
+    public void testGetChild() {
         STRING_TYPE_MAP.put(Integer.class, "INTEGER!!!");
 
-        assertEquals("INTEGER!!!", STRING_TYPE_MAP.getParent(Number.class));
+        assertEquals("INTEGER!!!", STRING_TYPE_MAP.getChild(Number.class));
         assertEquals("INTEGER!!!", STRING_TYPE_MAP.quickGet(Number.class));
-        assertEquals("INTEGER!!!", STRING_TYPE_MAP.getParent(Number.class));
+        assertEquals("INTEGER!!!", STRING_TYPE_MAP.getChild(Number.class));
     }
 }
