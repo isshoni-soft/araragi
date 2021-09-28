@@ -158,7 +158,7 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
     private void removeAlias(K clazz) {
         KEY_ALIASES_MAP = Streams.to(KEY_ALIASES_MAP)
                 .filter((k, v) -> !k.equals(clazz))
-                .map(k -> k, v -> v.stream()
+                .mapSecond(v -> v.stream()
                         .filter(cl -> cl.equals(clazz))
                         .collect(Collectors.toSet()))
                 .toMap();
