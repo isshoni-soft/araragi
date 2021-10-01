@@ -14,25 +14,11 @@ plugins {
 
 apply plugin: 'tv.isshoni.araragi.plugin'
 
-araragi {
-    testing {
-        add_opens('java.base', 'java.lang')
-        add_opens('java.base', 'java.util')
-        add_opens('java.base', 'java.io')
-        add_opens('java.base', 'java.time')
-        add_opens('java.base', 'java.time.format')
-        add_opens('java.base', 'java.util.concurrent')
-    }
-}
-
 dependencies {
-    implementation project(':core')
-    implementation project(':annotation')
-
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.11.0'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
 }
 
-description = 'logging'
+description = 'core'

@@ -9,7 +9,7 @@ import tv.isshoni.araragi.annotation.model.IExecutableInvoker;
 import tv.isshoni.araragi.annotation.model.IParameterSupplier;
 import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
-import tv.isshoni.araragi.collection.TypeMap;
+import tv.isshoni.araragi.data.collection.TypeMap;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;

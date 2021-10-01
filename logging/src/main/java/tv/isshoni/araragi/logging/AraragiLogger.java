@@ -3,10 +3,13 @@ package tv.isshoni.araragi.logging;
 import tv.isshoni.araragi.logging.driver.ConsoleDriver;
 import tv.isshoni.araragi.logging.format.SimpleFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
-import tv.isshoni.araragi.logging.model.IFormatter;
-import tv.isshoni.araragi.logging.model.level.ILevel;
 import tv.isshoni.araragi.logging.model.ILoggerDriver;
+import tv.isshoni.araragi.logging.model.format.IFormatter;
+import tv.isshoni.araragi.logging.model.level.ILevel;
 import tv.isshoni.araragi.logging.model.level.Level;
+import tv.isshoni.araragi.logging.model.format.message.IMessageContext;
+import tv.isshoni.araragi.logging.model.format.message.factory.IMessageContextFactory;
+import tv.isshoni.araragi.logging.format.message.factory.SimpleMessageContextFactory;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -33,6 +36,8 @@ public class AraragiLogger implements IAraragiLogger {
 
     private final List<ILoggerDriver> drivers;
 
+    private IMessageContextFactory<IMessageContext> contextFactory;
+
     private IFormatter formatter;
 
     private ILevel level;
@@ -42,6 +47,7 @@ public class AraragiLogger implements IAraragiLogger {
         this.formatter = new SimpleFormatter();
         this.drivers = new LinkedList<>();
         this.level = Level.INFO;
+        this.contextFactory = new SimpleMessageContextFactory();
     }
 
     @Override
@@ -57,6 +63,16 @@ public class AraragiLogger implements IAraragiLogger {
     @Override
     public void setFormatter(IFormatter formatter) {
         this.formatter = formatter;
+    }
+
+    @Override
+    public void setMessageContextFactory(IMessageContextFactory<IMessageContext> context) {
+        this.contextFactory = context;
+    }
+
+    @Override
+    public IMessageContextFactory<IMessageContext> getMessageContextFactory() {
+        return this.contextFactory;
     }
 
     @Override

@@ -1,7 +1,10 @@
 package tv.isshoni.araragi.logging.model;
 
+import tv.isshoni.araragi.logging.model.format.IFormatter;
 import tv.isshoni.araragi.logging.model.level.ILevel;
 import tv.isshoni.araragi.logging.model.level.Level;
+import tv.isshoni.araragi.logging.model.format.message.IMessageContext;
+import tv.isshoni.araragi.logging.model.format.message.factory.IMessageContextFactory;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -17,15 +20,19 @@ public interface IAraragiLogger {
 
     void setFormatter(IFormatter formatter);
 
+    void setMessageContextFactory(IMessageContextFactory<IMessageContext> context);
+
     default void log(String message, ILevel level, Map<String, Supplier<Object>> data) {
         if (level.compareTo(this.getLevel()) < 0) {
             return;
         }
 
-        // TODO: Add message parsing & supplier filling
+        IMessageContext context = getMessageContextFactory().create(message, this, level, ZonedDateTime.now(), data);
+
+        getFormatter().format(context);
 
         for (ILoggerDriver driver : this.getDrivers()) {
-            driver.process(this.getFormatter().format(message, this, level, ZonedDateTime.now()), level);
+            driver.process(context);
         }
     }
 
@@ -64,6 +71,8 @@ public interface IAraragiLogger {
     default void debug(String message) {
         this.debug(message, new HashMap<>());
     }
+
+    IMessageContextFactory<IMessageContext> getMessageContextFactory();
 
     ILevel getLevel();
 

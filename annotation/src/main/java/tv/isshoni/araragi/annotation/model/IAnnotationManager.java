@@ -9,7 +9,6 @@ import java.lang.reflect.Executable;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public interface IAnnotationManager {
 
