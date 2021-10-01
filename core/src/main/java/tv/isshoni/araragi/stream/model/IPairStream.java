@@ -10,6 +10,8 @@ import java.util.function.Function;
 
 public interface IPairStream<F, S> extends IAraragiStream<Pair<F, S>> {
 
+    IPairStream<F, S> add(Map<F, S> map);
+
     <NF> IPairStream<NF, S> mapFirst(Function<? super F, ? extends NF> mapper);
 
     <NS> IPairStream<F, NS> mapSecond(Function<? super S, ? extends NS> mapper);

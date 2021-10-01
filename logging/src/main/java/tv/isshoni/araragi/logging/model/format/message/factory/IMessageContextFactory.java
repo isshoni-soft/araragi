@@ -10,5 +10,5 @@ import java.util.function.Supplier;
 
 public interface IMessageContextFactory<C extends IMessageContext> {
 
-    C create(String message, IAraragiLogger logger, ILevel level, ZonedDateTime time, Map<String, Supplier<Object>> data);
+    C create(String message, IAraragiLogger logger, ILevel level, ZonedDateTime time, Map<String, Supplier<String>> data);
 }

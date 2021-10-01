@@ -22,7 +22,7 @@ public interface IAraragiLogger {
 
     void setMessageContextFactory(IMessageContextFactory<IMessageContext> context);
 
-    default void log(String message, ILevel level, Map<String, Supplier<Object>> data) {
+    default void log(String message, ILevel level, Map<String, Supplier<String>> data) {
         if (level.compareTo(this.getLevel()) < 0) {
             return;
         }
@@ -40,7 +40,7 @@ public interface IAraragiLogger {
         this.log(message, level, new HashMap<>());
     }
 
-    default void info(String message, Map<String, Supplier<Object>> data) {
+    default void info(String message, Map<String, Supplier<String>> data) {
         this.log(message, Level.INFO, data);
     }
 
@@ -48,7 +48,7 @@ public interface IAraragiLogger {
         this.info(message, new HashMap<>());
     }
 
-    default void warn(String message, Map<String, Supplier<Object>> data) {
+    default void warn(String message, Map<String, Supplier<String>> data) {
         this.log(message, Level.WARNING, data);
     }
 
@@ -56,7 +56,7 @@ public interface IAraragiLogger {
         this.warn(message, new HashMap<>());
     }
 
-    default void error(String message, Map<String, Supplier<Object>> data) {
+    default void error(String message, Map<String, Supplier<String>> data) {
         this.log(message, Level.ERROR, data);
     }
 
@@ -64,7 +64,7 @@ public interface IAraragiLogger {
         this.error(message, new HashMap<>());
     }
 
-    default void debug(String message, Map<String, Supplier<Object>> data) {
+    default void debug(String message, Map<String, Supplier<String>> data) {
         this.log(message, Level.DEBUG, data);
     }
 

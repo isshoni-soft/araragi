@@ -23,6 +23,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -47,6 +48,12 @@ public class PairStream<F, S> implements IPairStream<F, S> {
 
     protected PairStream(Collection<Pair<F, S>> collection) {
         this.stream = Streams.to(collection);
+    }
+
+    @Override
+    public IPairStream<F, S> add(Map<F, S> map) {
+        return new PairStream<>(this.stream.add(Streams.to(map)
+                .collect(Collectors.toList())));
     }
 
     @Override

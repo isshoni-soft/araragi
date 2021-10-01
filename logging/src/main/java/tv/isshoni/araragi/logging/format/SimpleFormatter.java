@@ -2,13 +2,16 @@ package tv.isshoni.araragi.logging.format;
 
 import tv.isshoni.araragi.logging.model.format.IFormatter;
 import tv.isshoni.araragi.logging.model.format.message.IMessageContext;
+import tv.isshoni.araragi.stream.Streams;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
@@ -20,9 +23,13 @@ public class SimpleFormatter implements IFormatter {
             .withLocale(Locale.US)
             .withZone(ZoneId.systemDefault());
 
-    private static final Map<String, BiFunction<String[], IMessageContext, String>> FUNCTIONS = new ConcurrentHashMap<>();
+    private final Map<String, BiFunction<String[], IMessageContext, String>> FUNCTIONS = new ConcurrentHashMap<>();
+
+    private final Map<String, Supplier<String>> GLOBAL_SUPPLIERS = new ConcurrentHashMap<>();
 
     public SimpleFormatter() {
+        registerGlobalSupplier("now", () -> Instant.now().toString());
+
         registerFunction("dashes", (args, c) -> {
             int num = Integer.parseInt(args[0]);
 
@@ -51,7 +58,7 @@ public class SimpleFormatter implements IFormatter {
             if (first != -1 && second != -1) {
                 String key = message.substring(first + 2, second);
 
-                Optional<String> result = Optional.ofNullable(processReplacement(key, context))
+                Optional<String> result = Optional.ofNullable(processSupplier(key, context))
                         .or(() -> Optional.ofNullable(processFunction(key, context)));
 
                 String temp = context.getMessage();
@@ -70,23 +77,33 @@ public class SimpleFormatter implements IFormatter {
     }
 
     @Override
-    public String processReplacement(String key, IMessageContext context) {
-        return Optional.ofNullable(context.getData().get(key))
+    public String processSupplier(String key, IMessageContext context) {
+        return Streams.to(context.getData())
+                .add(GLOBAL_SUPPLIERS)
+                .filter((k, s) -> k.equals(key))
+                .mapSecond()
                 .map(Supplier::get)
-                .map(Object::toString)
+                .filter(Objects::nonNull)
+                .findFirst()
                 .orElse(null);
     }
 
     @Override
     public String processFunction(String key, IMessageContext context) {
         String[] splitCommand = key.split("%");
-        key = splitCommand[0];
+        String[] args;
 
-        if (!FUNCTIONS.containsKey(key)) {
-            return null;
+        if (splitCommand.length >= 1) {
+            args = Arrays.copyOfRange(splitCommand, 1, splitCommand.length);
+        } else {
+            args = new String[0];
         }
 
-        return FUNCTIONS.get(key).apply(Arrays.copyOfRange(splitCommand, 1, splitCommand.length), context);
+        key = splitCommand[0];
+
+        return Optional.ofNullable(FUNCTIONS.get(key))
+                .map(f -> f.apply(args, context))
+                .orElse(null);
     }
 
     @Override
@@ -100,7 +117,17 @@ public class SimpleFormatter implements IFormatter {
     }
 
     @Override
+    public void registerGlobalSupplier(String key, Supplier<String> suppler) {
+        GLOBAL_SUPPLIERS.put(key, suppler);
+    }
+
+    @Override
     public Map<String, BiFunction<String[], IMessageContext, String>> getFunctions() {
         return Collections.unmodifiableMap(FUNCTIONS);
+    }
+
+    @Override
+    public Map<String, Supplier<String>> getGlobalSuppliers() {
+        return Collections.unmodifiableMap(GLOBAL_SUPPLIERS);
     }
 }

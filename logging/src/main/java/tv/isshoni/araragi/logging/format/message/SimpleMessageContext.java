@@ -18,9 +18,9 @@ public class SimpleMessageContext implements IMessageContext {
 
     private final ZonedDateTime time;
 
-    private final Map<String, Supplier<Object>> data;
+    private final Map<String, Supplier<String>> data;
 
-    public SimpleMessageContext(String message, IAraragiLogger logger, ILevel level, ZonedDateTime time, Map<String, Supplier<Object>> data) {
+    public SimpleMessageContext(String message, IAraragiLogger logger, ILevel level, ZonedDateTime time, Map<String, Supplier<String>> data) {
         this.message = message;
         this.logger = logger;
         this.level = level;
@@ -54,7 +54,7 @@ public class SimpleMessageContext implements IMessageContext {
     }
 
     @Override
-    public Map<String, Supplier<Object>> getData() {
+    public Map<String, Supplier<String>> getData() {
         return this.data;
     }
 }

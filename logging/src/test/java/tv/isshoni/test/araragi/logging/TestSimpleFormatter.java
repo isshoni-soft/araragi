@@ -10,6 +10,7 @@ import tv.isshoni.araragi.logging.model.IAraragiLogger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 
@@ -20,10 +21,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({IAraragiLogger.class, AraragiLogger.class, ZonedDateTime.class, SimpleFormatter.class})
+@PrepareForTest({IAraragiLogger.class, AraragiLogger.class, ZonedDateTime.class, Instant.class, SimpleFormatter.class})
 public class TestSimpleFormatter {
 
     private ZonedDateTime time;
+
+    private Instant instant;
 
     private IAraragiLogger logger;
 
@@ -35,13 +38,25 @@ public class TestSimpleFormatter {
         this.output = new ByteArrayOutputStream();
         this.time = ZonedDateTime.now();
 
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        this.instant = Instant.now();
+
         System.setOut(new PrintStream(this.output));
         System.setErr(new PrintStream(this.output));
 
         mockStatic(ZonedDateTime.class);
         when(ZonedDateTime.now()).thenReturn(this.time);
 
+        mockStatic(Instant.class);
+        when(Instant.now()).thenReturn(this.instant);
+
         assertEquals(ZonedDateTime.now(), this.time);
+        assertEquals(Instant.now(), this.instant);
     }
 
     @Test
@@ -70,5 +85,12 @@ public class TestSimpleFormatter {
         this.logger.info("Testing: ${dashes%50}");
 
         assertEquals("[" + SimpleFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: --------------------------------------------------", this.output.toString().trim());
+    }
+
+    @Test
+    public void testNowSupplier() {
+        this.logger.info("Testing: ${now}");
+
+        assertEquals("[" + SimpleFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: " + Instant.now().toString(), this.output.toString().trim());
     }
 }

@@ -29,5 +29,5 @@ public interface IMessageContext {
 
     ZonedDateTime getTime();
 
-    Map<String, Supplier<Object>> getData();
+    Map<String, Supplier<String>> getData();
 }

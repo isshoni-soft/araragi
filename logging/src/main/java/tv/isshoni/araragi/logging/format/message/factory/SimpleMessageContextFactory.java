@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 public class SimpleMessageContextFactory implements IMessageContextFactory<IMessageContext> {
 
     @Override
-    public IMessageContext create(String message, IAraragiLogger logger, ILevel level, ZonedDateTime time, Map<String, Supplier<Object>> data) {
+    public IMessageContext create(String message, IAraragiLogger logger, ILevel level, ZonedDateTime time, Map<String, Supplier<String>> data) {
         return new SimpleMessageContext(message, logger, level, time, data);
     }
 }
