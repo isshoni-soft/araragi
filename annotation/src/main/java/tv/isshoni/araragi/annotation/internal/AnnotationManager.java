@@ -18,6 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,8 @@ public class AnnotationManager implements IAnnotationManager {
         register(IAnnotationProcessor.class, PreparedAnnotationProcessor::new);
         register(IParameterSupplier.class, PreparedParameterSupplier::new);
 
-        register(Method.class, (m, o) -> m.invoke(o, this.prepareExecutable(m)));
-        register(Constructor.class, (c, o) -> c.newInstance(this.prepareExecutable(c)));
+        register(Method.class, (m, o, ctx) -> m.invoke(o, this.prepareExecutable(m, ctx)));
+        register(Constructor.class, (c, o, ctx) -> c.newInstance(this.prepareExecutable(c, ctx)));
     }
 
     @Override
@@ -130,12 +131,17 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public <T extends Executable, R> R execute(T executable, Object target) throws Throwable {
+    public <T extends Executable, R> R execute(T executable, Object target, Map<String, Object> runtimeContext) throws Throwable {
         try {
-            return (R) this.executableInvokers.get(executable.getClass()).invoke(executable, target);
+            return (R) this.executableInvokers.get(executable.getClass()).invoke(executable, target, runtimeContext);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
+    }
+
+    @Override
+    public <T extends Executable, R> R execute(T executable, Object target) throws Throwable {
+        return execute(executable, target, new HashMap<>());
     }
 
     @Override
@@ -240,7 +246,7 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public Object[] prepareExecutable(Executable executable) {
+    public Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext) {
         return Streams.to(executable.getParameterAnnotations())
                 .map(a -> Streams.to(a)
                         .filter(this::isManagedAnnotation)
@@ -249,7 +255,7 @@ public class AnnotationManager implements IAnnotationManager {
                 .map(l -> Streams.to(l)
                         .filter(p -> IPreparedParameterSupplier.class.isAssignableFrom(p.getClass()))
                         .cast(IPreparedParameterSupplier.class)
-                        .collapse((p, o) -> p.supplyParameter(p.getAnnotation(), o)))
+                        .collapse((p, o) -> p.supplyParameter(p.getAnnotation(), o, new HashMap<>(runtimeContext))))
                 .toArray();
     }
 

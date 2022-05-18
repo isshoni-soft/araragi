@@ -9,8 +9,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target(ElementType.PARAMETER)
 @Weight(5)
 @Processor(SecondAnnotationProcessor.class)
 public @interface Second {
+
+    String value() default "DEFAULT";
 }

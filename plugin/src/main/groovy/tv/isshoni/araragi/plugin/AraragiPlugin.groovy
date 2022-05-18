@@ -33,6 +33,10 @@ class AraragiPlugin implements Plugin<Project> {
                         jvmArgs += createPatch(str, child)
                     }
 
+                    if (testExtension.allowSelfAttach) {
+                        jvmArgs += "-Djdk.attach.allowAttachSelf=true"
+                    }
+
                     LinkedList<String> opens = testExtension.opensList
 
                     if (opens.size() % 2 != 0) {

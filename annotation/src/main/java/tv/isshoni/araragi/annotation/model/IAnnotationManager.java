@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 public interface IAnnotationManager {
@@ -33,6 +34,8 @@ public interface IAnnotationManager {
     void register(Class<? extends Annotation> annotation, IAnnotationProcessor<?>... processors);
 
     <T extends Executable> void register(Class<T> executable, IExecutableInvoker<T> invoker);
+
+    <T extends Executable, R> R execute(T executable, Object target, Map<String, Object> runtimeContext) throws Throwable;
 
     <T extends Executable, R> R execute(T executable, Object target) throws Throwable;
 
@@ -60,7 +63,7 @@ public interface IAnnotationManager {
 
     <A extends Annotation> boolean hasConflictingAnnotations(Collection<A> annotations);
 
-    Object[] prepareExecutable(Executable executable);
+    Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext);
 
     int getTotalProcessors();
 }

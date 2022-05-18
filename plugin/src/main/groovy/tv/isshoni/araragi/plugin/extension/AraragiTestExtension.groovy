@@ -6,6 +6,11 @@ class AraragiTestExtension {
     List<String> opensList = new LinkedList<>()
 
     boolean prettyBoolean = true
+    boolean allowSelfAttach = true
+
+    def allow_self_attach(boolean allowSelfAttach) {
+        this.allowSelfAttach = allowSelfAttach
+    }
 
     def pretty(boolean pretty) {
         this.prettyBoolean = pretty
