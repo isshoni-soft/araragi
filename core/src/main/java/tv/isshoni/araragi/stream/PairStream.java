@@ -51,6 +51,11 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
+    public IPairStream<F, S> filterInverted(BiPredicate<F, S> predicate) {
+        return new PairStream<>(this.filterInverted(p -> predicate.test(p.getFirst(), p.getSecond())));
+    }
+
+    @Override
     public IPairStream<F, S> add(Map<F, S> map) {
         return new PairStream<>(this.stream.add(Streams.to(map)
                 .collect(Collectors.toList())));
@@ -109,6 +114,11 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     @Override
     public void forEachOrdered(BiConsumer<? super F, ? super S> consumer) {
         this.stream.forEachOrdered(p -> consumer.accept(p.getFirst(), p.getSecond()));
+    }
+
+    @Override
+    public AraragiStream<Pair<F, S>> filterInverted(Predicate<? super Pair<F, S>> predicate) {
+        return this.stream.filterInverted(predicate);
     }
 
     @Override

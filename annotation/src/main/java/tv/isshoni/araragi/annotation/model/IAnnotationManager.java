@@ -34,7 +34,7 @@ public interface IAnnotationManager {
 
     <T extends Executable> void register(Class<T> executable, IExecutableInvoker<T> invoker);
 
-    <T extends Executable> Object execute(T executable, Object target) throws Exception;
+    <T extends Executable, R> R execute(T executable, Object target) throws Throwable;
 
     Constructor<?> discoverConstructor(Class<?> clazz);
 

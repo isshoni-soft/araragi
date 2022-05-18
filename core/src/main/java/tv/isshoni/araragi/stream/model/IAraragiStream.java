@@ -9,6 +9,8 @@ import java.util.stream.Stream;
 
 public interface IAraragiStream<T> extends Stream<T> {
 
+    IAraragiStream<T> filterInverted(Predicate<? super T> predicate);
+
     IAraragiStream<T> add(Collection<? extends T> collection);
 
     IAraragiStream<T> add(Supplier<Collection<? extends T>> collection);

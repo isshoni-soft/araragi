@@ -10,6 +10,8 @@ import tv.isshoni.test.araragi.model.ParentInterface;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,5 +49,16 @@ public class TestAraragiStream {
                 .expand(ParentInterface.class, ClassC::getClassA, ClassC::getClassB)
                 .map(ParentInterface::getStr)
                 .count());
+    }
+
+    @Test
+    public void testStreamInvertedFilter() {
+        this.list.add(null);
+        this.list.add(null);
+        this.list.add(null);
+
+        assertEquals(5, this.list.size());
+        assertEquals(2, Streams.to(this.list).filterInverted(Objects::isNull).count());
+        assertEquals(3, Streams.to(this.list).filterInverted(Objects::nonNull).count());
     }
 }

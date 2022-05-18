@@ -3,12 +3,12 @@ package tv.isshoni.araragi.stream.model;
 import tv.isshoni.araragi.data.Pair;
 
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
+import java.util.function.*;
+import java.util.stream.Stream;
 
 public interface IPairStream<F, S> extends IAraragiStream<Pair<F, S>> {
+
+    IPairStream<F, S> filterInverted(BiPredicate<F, S> predicate);
 
     IPairStream<F, S> add(Map<F, S> map);
 

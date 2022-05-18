@@ -15,10 +15,7 @@ import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -102,7 +99,7 @@ public class AnnotationManager implements IAnnotationManager {
                 .map(c -> {
                     try {
                         return this.execute(c, null);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         throw new RuntimeException(e);
                     }
                 })
@@ -133,8 +130,12 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public <T extends Executable> Object execute(T executable, Object target) throws Exception {
-        return this.executableInvokers.get(executable.getClass()).invoke(executable, target);
+    public <T extends Executable, R> R execute(T executable, Object target) throws Throwable {
+        try {
+            return (R) this.executableInvokers.get(executable.getClass()).invoke(executable, target);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 
     @Override

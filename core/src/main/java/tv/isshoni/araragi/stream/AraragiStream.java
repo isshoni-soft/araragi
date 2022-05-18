@@ -43,6 +43,11 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     }
 
     @Override
+    public AraragiStream<T> filterInverted(Predicate<? super T> predicate) {
+        return Streams.to(this.stream.filter(v -> !predicate.test(v)));
+    }
+
+    @Override
     public AraragiStream<T> add(Collection<? extends T> collection) {
         List<T> list = this.stream.collect(Collectors.toCollection(LinkedList::new));
         list.addAll(collection);
