@@ -11,6 +11,7 @@ import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
 import tv.isshoni.araragi.data.collection.TypeMap;
 import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.functional.TriFunction;
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
@@ -23,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,7 +32,7 @@ public class AnnotationManager implements IAnnotationManager {
 
     protected final Map<Class<? extends Annotation>, List<IAnnotationProcessor<?>>> annotationProcessors;
 
-    protected final Map<Class<? extends IAnnotationProcessor>, BiFunction<Annotation, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor>> preparations;
+    protected final Map<Class<? extends IAnnotationProcessor>, TriFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor>> preparations;
 
     protected final Map<Class<? extends Executable>, IExecutableInvoker> executableInvokers;
 
@@ -108,7 +110,7 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public void register(Class<? extends IAnnotationProcessor> processor, BiFunction<Annotation, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter) {
+    public void register(Class<? extends IAnnotationProcessor> processor, TriFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter) {
         this.preparations.put(processor, converter);
     }
 
@@ -188,14 +190,14 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public IPreparedAnnotationProcessor prepare(Annotation annotation, IAnnotationProcessor<Annotation> processor) {
-        return this.preparations.get(processor.getClass()).apply(annotation, processor);
+    public IPreparedAnnotationProcessor prepare(Annotation annotation, AnnotatedElement element, IAnnotationProcessor<Annotation> processor) {
+        return this.preparations.get(processor.getClass()).apply(annotation, element, processor);
     }
 
     @Override
-    public List<IPreparedAnnotationProcessor> toExecutionList(Collection<Annotation> annotations) {
-        return convertCollectionToProcessorStream(annotations)
-                .map(this::prepare)
+    public List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, Collection<Annotation>> annotations) {
+        return convertCollectionToProcessorStream(annotations.getSecond())
+                .map((a, p) -> this.prepare(a, annotations.getFirst(), p))
                 .sorted()
                 .collect(Collectors.toList());
     }
@@ -247,15 +249,16 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext) {
-        return Streams.to(executable.getParameterAnnotations())
-                .map(a -> Streams.to(a)
+        return Streams.to(executable.getParameters())
+                .cast(AnnotatedElement.class)
+                .mapToPair(p -> p, p -> Streams.to(p.getAnnotations())
                         .filter(this::isManagedAnnotation)
                         .collect(Collectors.toList()))
-                .map(this::toExecutionList)
+                .map((e, a) -> this.toExecutionList(new Pair<>(e, a)))
                 .map(l -> Streams.to(l)
                         .filter(p -> IPreparedParameterSupplier.class.isAssignableFrom(p.getClass()))
                         .cast(IPreparedParameterSupplier.class)
-                        .collapse((p, o) -> p.supplyParameter(p.getAnnotation(), o, new HashMap<>(runtimeContext))))
+                        .collapse((p, o) -> p.supplyParameter(p.getAnnotation(), o, (Parameter) p.getElement(), new HashMap<>(runtimeContext))))
                 .toArray();
     }
 

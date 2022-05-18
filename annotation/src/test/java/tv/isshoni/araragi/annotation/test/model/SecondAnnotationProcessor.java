@@ -3,6 +3,7 @@ package tv.isshoni.araragi.annotation.test.model;
 import tv.isshoni.araragi.annotation.model.IParameterSupplier;
 import tv.isshoni.araragi.annotation.test.TestAnnotationManager;
 
+import java.lang.reflect.Parameter;
 import java.util.Map;
 
 public class SecondAnnotationProcessor implements IParameterSupplier<Second, String> {
@@ -13,7 +14,7 @@ public class SecondAnnotationProcessor implements IParameterSupplier<Second, Str
     }
 
     @Override
-    public String supply(Second annotation, String previous, Map<String, Object> runtimeContext) {
+    public String supply(Second annotation, String previous, Parameter parameter, Map<String, Object> runtimeContext) {
         return runtimeContext.getOrDefault(annotation.value(), "default").toString();
     }
 }

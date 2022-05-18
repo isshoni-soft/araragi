@@ -1,6 +1,7 @@
 package tv.isshoni.araragi.annotation.model;
 
 import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.functional.TriFunction;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -29,7 +30,7 @@ public interface IAnnotationManager {
 
     void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors);
 
-    void register(Class<? extends IAnnotationProcessor> processor, BiFunction<Annotation, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter);
+    void register(Class<? extends IAnnotationProcessor> processor, TriFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter);
 
     void register(Class<? extends Annotation> annotation, IAnnotationProcessor<?>... processors);
 
@@ -49,9 +50,9 @@ public interface IAnnotationManager {
 
     Collection<Class<? extends Annotation>> getAnnotationsWithProcessorType(Class<? extends IAnnotationProcessor> processor);
 
-    IPreparedAnnotationProcessor prepare(Annotation annotation, IAnnotationProcessor<Annotation> processor);
+    IPreparedAnnotationProcessor prepare(Annotation annotation, AnnotatedElement element, IAnnotationProcessor<Annotation> processor);
 
-    List<IPreparedAnnotationProcessor> toExecutionList(Collection<Annotation> annotations);
+    List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, Collection<Annotation>> annotations);
 
     List<Annotation> getManagedAnnotationsOn(AnnotatedElement element);
 

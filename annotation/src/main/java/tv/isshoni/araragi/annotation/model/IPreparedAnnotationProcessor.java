@@ -1,6 +1,7 @@
 package tv.isshoni.araragi.annotation.model;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -23,6 +24,8 @@ public interface IPreparedAnnotationProcessor<T extends IAnnotationProcessor<Ann
     }
 
     Annotation getAnnotation();
+
+    AnnotatedElement getElement();
 
     T getProcessor();
 }

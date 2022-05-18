@@ -1,16 +1,26 @@
 package tv.isshoni.araragi.annotation.model;
 
+import tv.isshoni.araragi.data.Pair;
+
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 public abstract class SimplePreparedAnnotationProcessor {
 
     protected final Annotation annotation;
 
+    protected final AnnotatedElement element;
+
     protected final IAnnotationProcessor<Annotation> processor;
 
-    public SimplePreparedAnnotationProcessor(Annotation annotation, IAnnotationProcessor<Annotation> processor) {
+    public SimplePreparedAnnotationProcessor(Annotation annotation,AnnotatedElement element, IAnnotationProcessor<Annotation> processor) {
         this.annotation = annotation;
+        this.element = element;
         this.processor = processor;
+    }
+
+    public AnnotatedElement getElement() {
+        return this.element;
     }
 
     public Annotation getAnnotation() {

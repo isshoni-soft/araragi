@@ -2,6 +2,8 @@ package tv.isshoni.araragi.annotation.test.model;
 
 import tv.isshoni.araragi.annotation.model.IParameterSupplier;
 
+import java.lang.reflect.Parameter;
+
 public class TestAnnotationProcessor implements IParameterSupplier<TestAnnotation, String> {
 
     public TestAnnotationProcessor() {
@@ -9,7 +11,7 @@ public class TestAnnotationProcessor implements IParameterSupplier<TestAnnotatio
     }
 
     @Override
-    public String supply(TestAnnotation annotation, String previous) {
+    public String supply(TestAnnotation annotation, String previous, Parameter parameter) {
         return annotation.value();
     }
 }
