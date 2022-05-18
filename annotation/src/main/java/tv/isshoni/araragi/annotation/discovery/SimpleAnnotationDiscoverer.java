@@ -15,6 +15,8 @@ import org.reflections8.scanners.SubTypesScanner;
 import org.reflections8.scanners.TypeAnnotationsScanner;
 import org.reflections8.util.ConfigurationBuilder;
 
+// TODO: Write some sort of load order management code into me; aka, find dependent annotations and
+// TODO: Ensure that they're loaded first.
 public class SimpleAnnotationDiscoverer implements IAnnotationDiscoverer {
 
     protected final List<String> packages;
