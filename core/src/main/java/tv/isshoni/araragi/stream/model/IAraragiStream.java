@@ -27,6 +27,8 @@ public interface IAraragiStream<T> extends Stream<T> {
 
     <R> R collapse(BiFunction<? super T, R, R> mapper);
 
+    <R> R collapse(BiFunction<? super T, R, R> mapper, R first);
+
     Optional<T> find(Predicate<T> selector, Function<IAraragiStream<T>, Optional<T>> otherwise);
 
     void addTo(Collection<T> collection);

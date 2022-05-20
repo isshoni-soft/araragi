@@ -174,6 +174,11 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
+    public <R> R collapse(BiFunction<? super Pair<F, S>, R, R> mapper, R first) {
+        return this.stream.collapse(mapper, first);
+    }
+
+    @Override
     public Optional<Pair<F, S>> find(Predicate<Pair<F, S>> selector, Function<IAraragiStream<Pair<F, S>>, Optional<Pair<F, S>>> otherwise) {
         return this.stream.find(selector, otherwise);
     }

@@ -93,7 +93,12 @@ public class AraragiStream<T> implements IAraragiStream<T> {
 
     @Override
     public <R> R collapse(BiFunction<? super T, R, R> mapper) {
-        AtomicReference<R> reference = new AtomicReference<>();
+        return collapse(mapper, null);
+    }
+
+    @Override
+    public <R> R collapse(BiFunction<? super T, R, R> mapper, R first) {
+        AtomicReference<R> reference = new AtomicReference<>(first);
 
         this.stream.forEachOrdered(t -> {
             R result = mapper.apply(t, reference.get());
