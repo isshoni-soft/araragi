@@ -117,6 +117,16 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
+    public void addTo(Map<F, S> map) {
+        this.forEach(map::put);
+    }
+
+    @Override
+    public void addToOrdered(Map<F, S> map) {
+        this.forEachOrdered(map::put);
+    }
+
+    @Override
     public AraragiStream<Pair<F, S>> filterInverted(Predicate<? super Pair<F, S>> predicate) {
         return this.stream.filterInverted(predicate);
     }
@@ -166,6 +176,16 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     @Override
     public Optional<Pair<F, S>> find(Predicate<Pair<F, S>> selector, Function<IAraragiStream<Pair<F, S>>, Optional<Pair<F, S>>> otherwise) {
         return this.stream.find(selector, otherwise);
+    }
+
+    @Override
+    public void addTo(Collection<Pair<F, S>> collection) {
+        this.forEach(collection::add);
+    }
+
+    @Override
+    public void addToOrdered(Collection<Pair<F, S>> collection) {
+        this.forEachOrdered(collection::add);
     }
 
     @Override

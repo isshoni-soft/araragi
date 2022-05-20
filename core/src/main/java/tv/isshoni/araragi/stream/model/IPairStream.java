@@ -33,4 +33,8 @@ public interface IPairStream<F, S> extends IAraragiStream<Pair<F, S>> {
     void forEach(BiConsumer<? super F, ? super S> consumer);
 
     void forEachOrdered(BiConsumer<? super F, ? super S> consumer);
+
+    void addTo(Map<F, S> map);
+
+    void addToOrdered(Map<F, S> map);
 }

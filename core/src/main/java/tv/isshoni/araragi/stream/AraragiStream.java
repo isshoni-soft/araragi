@@ -118,6 +118,16 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     }
 
     @Override
+    public void addTo(Collection<T> collection) {
+        this.stream.forEach(collection::add);
+    }
+
+    @Override
+    public void addToOrdered(Collection<T> collection) {
+        this.stream.forEachOrdered(collection::add);
+    }
+
+    @Override
     public AraragiStream<T> filter(Predicate<? super T> predicate) {
         return Streams.to(this.stream.filter(predicate));
     }
