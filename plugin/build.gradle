@@ -27,3 +27,5 @@ publishing {
 group = 'tv.isshoni.araragi'
 version = "$plugin_version"
 description = 'plugin'
+java.sourceCompatibility = JavaVersion.VERSION_18
+java.targetCompatibility = JavaVersion.VERSION_18
