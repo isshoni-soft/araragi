@@ -40,6 +40,12 @@ public interface IAnnotationManager {
 
     <T extends Executable, R> R execute(T executable, Object target) throws Throwable;
 
+    <R> R construct(Class<R> clazz) throws Throwable;
+
+    void execute(Class<?> clazz);
+
+    void execute(Object target);
+
     Constructor<?> discoverConstructor(Class<?> clazz);
 
     <A extends Annotation> int calculateWeight(Collection<A> annotations);
@@ -52,7 +58,7 @@ public interface IAnnotationManager {
 
     IPreparedAnnotationProcessor prepare(Annotation annotation, AnnotatedElement element, IAnnotationProcessor<Annotation> processor);
 
-    List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, Collection<Annotation>> annotations);
+    List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, List<Annotation>> annotations);
 
     List<Annotation> getManagedAnnotationsOn(AnnotatedElement element);
 

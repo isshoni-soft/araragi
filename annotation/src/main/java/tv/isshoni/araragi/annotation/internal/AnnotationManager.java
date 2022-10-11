@@ -17,6 +17,7 @@ import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -147,6 +148,37 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
+    public <R> R construct(Class<R> clazz) throws Throwable {
+        return execute(discoverConstructor(clazz), null);
+    }
+
+    @Override
+    public void execute(Class<?> clazz) {
+        Streams.to(annotatedElementToExecutionList(clazz))
+                .flatMap(List::stream)
+                .forEach(ap -> ap.executeClass(null));
+    }
+
+    @Override
+    public void execute(Object target) {
+        List<AnnotatedElement> elements = new ArrayList<>();
+        elements.addAll(Arrays.asList(target.getClass().getDeclaredFields()));
+        elements.addAll(Arrays.asList(target.getClass().getDeclaredMethods()));
+
+        Streams.to(annotatedElementToExecutionList(elements.toArray(new AnnotatedElement[0])))
+                .flatMap(List::stream)
+                .forEach(ap -> {
+                    AnnotatedElement element = ap.getElement();
+
+                    if (element instanceof Field) {
+                        ap.executeField(target);
+                    } else if (element instanceof Method) {
+                        ap.executeMethod(target);
+                    }
+                });
+    }
+
+    @Override
     public Constructor<?> discoverConstructor(Class<?> clazz) {
         return Streams.to(clazz.getDeclaredConstructors())
                 .filter(c -> Streams.to(c.getParameterAnnotations())
@@ -195,7 +227,7 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, Collection<Annotation>> annotations) {
+    public List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, List<Annotation>> annotations) {
         return convertCollectionToProcessorStream(annotations.getSecond())
                 .map((a, p) -> this.prepare(a, annotations.getFirst(), p))
                 .sorted()
@@ -249,12 +281,7 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext) {
-        return Streams.to(executable.getParameters())
-                .cast(AnnotatedElement.class)
-                .mapToPair(p -> p, p -> Streams.to(p.getAnnotations())
-                        .filter(this::isManagedAnnotation)
-                        .collect(Collectors.toList()))
-                .map((e, a) -> this.toExecutionList(new Pair<>(e, a)))
+        return Streams.to(annotatedElementToExecutionList(executable.getParameters()))
                 .map(l -> Streams.to(l)
                         .filter(p -> IPreparedParameterSupplier.class.isAssignableFrom(p.getClass()))
                         .cast(IPreparedParameterSupplier.class)
@@ -267,6 +294,16 @@ public class AnnotationManager implements IAnnotationManager {
         return this.annotationProcessors.values().stream()
                 .mapToInt(Collection::size)
                 .sum();
+    }
+
+    protected List<List<IPreparedAnnotationProcessor>> annotatedElementToExecutionList(AnnotatedElement... elements) {
+        return Streams.to(elements)
+                .cast(AnnotatedElement.class)
+                .mapToPair(p -> p, p -> Streams.to(p.getAnnotations())
+                        .filter(this::isManagedAnnotation)
+                        .collect(Collectors.toList()))
+                .map(this::toExecutionList)
+                .collect(Collectors.toList());
     }
 
     protected <A extends Annotation> PairStream<A, IAnnotationProcessor<A>> convertCollectionToProcessorStream(Collection<A> annotations) {

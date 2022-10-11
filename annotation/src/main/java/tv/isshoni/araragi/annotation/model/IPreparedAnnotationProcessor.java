@@ -7,16 +7,16 @@ import java.lang.reflect.Method;
 
 public interface IPreparedAnnotationProcessor<T extends IAnnotationProcessor<Annotation>> extends Comparable<IPreparedAnnotationProcessor<T>> {
 
-    default void executeClass(Class<?> clazz) {
-        this.getProcessor().executeClass(clazz, this.getAnnotation());
+    default void executeClass(Object target) {
+        this.getProcessor().executeClass(target, (Class<?>) getElement(), this.getAnnotation());
     }
 
-    default void executeMethod(Method method) {
-        this.getProcessor().executeMethod(method, this.getAnnotation());
+    default void executeMethod(Object target) {
+        this.getProcessor().executeMethod(target, (Method) getElement(), this.getAnnotation());
     }
 
-    default void executeField(Field field) {
-        this.getProcessor().executeField(field, this.getAnnotation());
+    default void executeField(Object target) {
+        this.getProcessor().executeField(target, (Field) getElement(), this.getAnnotation());
     }
 
     default int compareTo(IPreparedAnnotationProcessor o) {

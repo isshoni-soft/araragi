@@ -70,12 +70,10 @@ public interface IAnnotationDiscoverer {
 
     List<String> getPackages();
 
-    Reflections getReflections();
-
     Reflections construct();
 
     default IAnnotationDiscoverer discoverParameterAnnotations() {
-        getReflections().getTypesAnnotatedWith(Processor.class).stream()
+        construct().getTypesAnnotatedWith(Processor.class).stream()
                 .map(c -> (Class<? extends Annotation>) c)
                 .filter(c -> c.isAnnotationPresent(Processor.class))
                 .filter(c -> Streams.to(c.getAnnotation(Processor.class).value())
@@ -87,7 +85,7 @@ public interface IAnnotationDiscoverer {
     }
 
     default IAnnotationDiscoverer discoverAnnotations() {
-        getReflections().getTypesAnnotatedWith(Processor.class).stream()
+        construct().getTypesAnnotatedWith(Processor.class).stream()
                 .map(c -> (Class<? extends Annotation>) c)
                 .filter(c -> c.isAnnotationPresent(Processor.class))
                 .filter(c -> Streams.to(c.getAnnotation(Processor.class).value())
@@ -98,7 +96,7 @@ public interface IAnnotationDiscoverer {
     }
 
     default IAnnotationDiscoverer discoverAttachedProcessors() {
-        getReflections().getTypesAnnotatedWith(AttachTo.class).stream()
+        construct().getTypesAnnotatedWith(AttachTo.class).stream()
                 .filter(c -> c.isAnnotationPresent(AttachTo.class))
                 .filter(IAnnotationProcessor.class::isAssignableFrom)
                 .map(c -> (Class<IAnnotationProcessor<Annotation>>) c)

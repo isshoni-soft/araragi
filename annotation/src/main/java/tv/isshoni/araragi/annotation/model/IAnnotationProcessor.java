@@ -10,11 +10,11 @@ import java.util.List;
 
 public interface IAnnotationProcessor<A extends Annotation> {
 
-    default void executeClass(Class<?> clazz, A annotation) { }
+    default void executeClass(Object target, Class<?> clazz, A annotation) { }
 
-    default void executeField(Field field, A annotation) { }
+    default void executeField(Object target, Field field, A annotation) { }
 
-    default void executeMethod(Method method, A annotation) { }
+    default void executeMethod(Object target, Method method, A annotation) { }
 
     default int getWeight(A annotation) {
         return WeightCalculator.INSTANCE.calculateWeight(annotation);

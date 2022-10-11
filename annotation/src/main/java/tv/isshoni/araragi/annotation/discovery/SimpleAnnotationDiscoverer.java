@@ -1,5 +1,6 @@
 package tv.isshoni.araragi.annotation.discovery;
 
+import org.reflections8.util.FilterBuilder;
 import tv.isshoni.araragi.annotation.model.IAnnotationDiscoverer;
 import tv.isshoni.araragi.annotation.model.IAnnotationManager;
 
@@ -23,8 +24,6 @@ public class SimpleAnnotationDiscoverer implements IAnnotationDiscoverer {
 
     protected final IAnnotationManager annotationManager;
 
-    private Reflections reflections;
-
     public SimpleAnnotationDiscoverer(IAnnotationManager annotationManager) {
         this.annotationManager = annotationManager;
         this.packages = new LinkedList<>();
@@ -38,7 +37,7 @@ public class SimpleAnnotationDiscoverer implements IAnnotationDiscoverer {
     }
 
     @Override
-    public IAnnotationDiscoverer withPackages(Collection<String> packages) {
+    public SimpleAnnotationDiscoverer withPackages(Collection<String> packages) {
         this.packages.addAll(packages);
 
         return this;
@@ -50,19 +49,11 @@ public class SimpleAnnotationDiscoverer implements IAnnotationDiscoverer {
     }
 
     @Override
-    public final Reflections getReflections() {
-        if (Objects.isNull(this.reflections)) {
-            this.reflections = construct();
-        }
-
-        return this.reflections;
-    }
-
-    @Override
     public Reflections construct() {
         return new Reflections(new ConfigurationBuilder()
                 .addScanners(new TypeAnnotationsScanner(), new SubTypesScanner(false))
-                .forPackages(this.packages.toArray(new String[0])));
+                .forPackages(this.packages.toArray(new String[0]))
+                .filterInputsBy(new FilterBuilder().includePackage(this.packages.toArray(new String[0]))));
     }
 
     @Override
