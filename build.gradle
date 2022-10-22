@@ -35,7 +35,7 @@ subprojects {
 
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
-    apply plugin: 'tv.isshoni.araragi'
+    apply plugin: 'koyomi-araragi'
 
     java {
         sourceCompatibility JavaVersion.VERSION_17
