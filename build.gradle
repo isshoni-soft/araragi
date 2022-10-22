@@ -11,7 +11,7 @@ buildscript {
 
     dependencies {
         classpath 'com.amazonaws:aws-java-sdk-core:1.11.5'
-        classpath "tv.isshoni.araragi:plugin:${plugin_props['plugin_version']}"
+        classpath "tv.isshoni.araragi:koyomi-araragi:${plugin_props['plugin_version']}"
     }
 }
 
@@ -48,7 +48,7 @@ subprojects {
     }
 
     group = 'tv.isshoni.araragi'
-    version = '1.4.6'
+    version = '1.5.1'
 
     publishing {
         repositories {
