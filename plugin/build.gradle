@@ -34,7 +34,7 @@ dependencies {
 gradlePlugin {
     plugins {
         araragiPlugin {
-            id = 'koyomi-araragi'
+            id = 'tv.isshoni.araragi'
             implementationClass = 'tv.isshoni.araragi.plugin.AraragiPlugin'
         }
     }
