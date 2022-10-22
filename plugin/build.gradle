@@ -21,15 +21,20 @@ ext {
     awsCredentials = new ProfileCredentialsProvider().credentials as BasicAWSCredentials
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     implementation localGroovy()
     implementation gradleApi()
+    implementation 'com.amazonaws:aws-java-sdk-core:1.12.322'
 }
 
 gradlePlugin {
     plugins {
         araragiPlugin {
-            id = 'tv.isshoni.araragi.plugin'
+            id = 'koyomi-araragi'
             implementationClass = 'tv.isshoni.araragi.plugin.AraragiPlugin'
         }
     }

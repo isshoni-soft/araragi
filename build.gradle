@@ -1,6 +1,3 @@
-import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-
 buildscript {
     def plugin_props = new Properties()
 
@@ -38,15 +35,11 @@ subprojects {
 
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
-    apply plugin: 'tv.isshoni.araragi.plugin'
+    apply plugin: 'koyomi-araragi'
 
     java {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-    }
-
-    ext {
-        awsCredentials = new ProfileCredentialsProvider().credentials as BasicAWSCredentials
     }
 
     repositories {
@@ -59,13 +52,7 @@ subprojects {
 
     publishing {
         repositories {
-            maven {
-                url 's3://repo.isshoni.institute'
-                credentials(AwsCredentials) {
-                    accessKey awsCredentials.AWSAccessKeyId
-                    secretKey awsCredentials.AWSSecretKey
-                }
-            }
+            isshoni()
         }
 
         publications {

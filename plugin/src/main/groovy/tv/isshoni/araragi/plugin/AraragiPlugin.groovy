@@ -1,7 +1,13 @@
 package tv.isshoni.araragi.plugin
 
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.credentials.AwsCredentials
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestResult
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -23,8 +29,30 @@ class AraragiPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project child) {
-        def araragiExtension = child.extensions.create('araragi', AraragiExtension)
-        def testExtension = araragiExtension.testingExtension
+        final araragiExtension = child.extensions.create('araragi', AraragiExtension)
+        final testExtension = araragiExtension.testingExtension
+
+        final publishing = child.extensions.findByType(PublishingExtension.class)
+        if (publishing != null) {
+            def awsCredentials = new ProfileCredentialsProvider().credentials as BasicAWSCredentials
+
+            publishing.repositories.ext.isshoni = {
+                publishing.repositories.maven {
+                    url = "s3://repo.isshoni.institute"
+
+                    credentials(AwsCredentials) {
+                        accessKey = awsCredentials.AWSAccessKeyId
+                        secretKey = awsCredentials.AWSSecretKey
+                    }
+                }
+            }
+        }
+
+        child.repositories.ext.isshoni = {
+            child.repositories.maven {
+                url = "https://repo.isshoni.institute"
+            }
+        }
 
         child.afterEvaluate {
             child.tasks.named('test') {
