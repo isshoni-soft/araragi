@@ -1,0 +1,81 @@
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+
+buildscript {
+    def plugin_props = new Properties()
+
+    plugin_props.load(file("${project.rootDir}/plugin/gradle.properties").newReader())
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
+    dependencies {
+        classpath 'com.amazonaws:aws-java-sdk-core:1.11.5'
+        classpath "tv.isshoni.araragi:plugin:${plugin_props['plugin_version']}"
+    }
+}
+
+subprojects {
+    buildscript {
+        def plugin_props = new Properties()
+
+        plugin_props.load(file("${project.rootProject.rootDir}/plugin/gradle.properties").newReader())
+
+        repositories {
+            mavenLocal()
+            mavenCentral()
+            gradlePluginPortal()
+        }
+
+        dependencies {
+            classpath 'com.amazonaws:aws-java-sdk-core:1.11.5'
+            classpath "tv.isshoni.araragi:plugin:${plugin_props['plugin_version']}"
+        }
+    }
+
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'tv.isshoni.araragi.plugin'
+
+    java {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    ext {
+        awsCredentials = new ProfileCredentialsProvider().credentials as BasicAWSCredentials
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    group = 'tv.isshoni.araragi'
+    version = '1.4.6'
+
+    publishing {
+        repositories {
+            maven {
+                url 's3://repo.isshoni.institute'
+                credentials(AwsCredentials) {
+                    accessKey awsCredentials.AWSAccessKeyId
+                    secretKey awsCredentials.AWSSecretKey
+                }
+            }
+        }
+
+        publications {
+            mavenJava(MavenPublication) {
+                groupId = "${project.group}"
+                artifactId = "${project.name}"
+                version = "${project.version}"
+
+                from components.java
+            }
+        }
+    }
+}

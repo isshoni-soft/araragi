@@ -1,28 +1,12 @@
-buildscript {
-    def plugin_props = new Properties()
-
-    plugin_props.load(file("${project.rootDir}/plugin/gradle.properties").newReader())
-
-    dependencies {
-        classpath "tv.isshoni.araragi:plugin:${plugin_props['plugin_version']}"
-    }
-}
-
-plugins {
-    id 'tv.isshoni.araragi.java-conventions'
-}
-
-apply plugin: 'tv.isshoni.araragi.plugin'
+description = 'annotation'
 
 dependencies {
     implementation 'net.oneandone.reflections8:reflections8:0.11.7'
 
     implementation project(':core')
 
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.11.0'
-    testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
-    testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
+    testImplementation "junit:junit:${junit_version}"
+    testImplementation "org.mockito:mockito-core:${mockito_version}"
+    testImplementation "org.powermock:powermock-module-junit4:${powermock_version}"
+    testImplementation "org.powermock:powermock-api-mockito2:${powermock_version}"
 }
-
-description = 'annotation'
