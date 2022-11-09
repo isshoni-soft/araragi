@@ -37,6 +37,10 @@ public class PairStream<F, S> implements IPairStream<F, S> {
         this.stream = stream;
     }
 
+    protected PairStream(Pair<F, S>[] pairs) {
+        this(Streams.to(pairs));
+    }
+
     protected PairStream(Stream<Pair<F, S>> stream) {
         this(Streams.to(stream));
     }

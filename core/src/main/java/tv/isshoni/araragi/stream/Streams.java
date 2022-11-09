@@ -20,6 +20,10 @@ public final class Streams {
         return PairStream::new;
     }
 
+    public static <F, S> Function<Pair<F, S>[], PairStream<F, S>> arrayToPairStream() {
+        return PairStream::new;
+    }
+
     public static <T> Function<Collection<T>, AraragiStream<T>> collectionToAraragiStream() {
         return AraragiStream::new;
     }
@@ -72,6 +76,10 @@ public final class Streams {
 
     public static <F, S> PairStream<F, S> to(Map<F, S> map) {
         return new PairStream<>(map);
+    }
+
+    public static <F, S> PairStream<F, S> to(Pair<F, S>[] array) {
+        return new PairStream<>(array);
     }
 
     // TODO: Rewrite me so that I don't need to rely on SimpleCollector, as it was shortcut.
