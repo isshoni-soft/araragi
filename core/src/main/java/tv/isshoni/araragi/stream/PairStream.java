@@ -4,6 +4,7 @@ import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.stream.model.IAraragiStream;
 import tv.isshoni.araragi.stream.model.IPairStream;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -38,7 +39,7 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     protected PairStream(Pair<F, S>[] pairs) {
-        this(Streams.to(pairs));
+        this(Arrays.stream(pairs));
     }
 
     protected PairStream(Stream<Pair<F, S>> stream) {

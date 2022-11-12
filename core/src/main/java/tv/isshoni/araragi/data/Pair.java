@@ -1,9 +1,13 @@
 package tv.isshoni.araragi.data;
 
+import tv.isshoni.araragi.stream.Streams;
+
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class Pair<F, S> {
 
@@ -13,6 +17,26 @@ public class Pair<F, S> {
 
     public static <F, S extends Comparable<S>> Comparator<Pair<F, S>> compareSecond() {
         return Comparator.comparing(o -> o.second);
+    }
+
+    public static <F> Function<Pair<F, ?>, F> first() {
+        return Pair::getFirst;
+    }
+
+    public static <S> Function<Pair<?, S>, S> second() {
+        return Pair::getSecond;
+    }
+
+    @SafeVarargs
+    public static <F extends Comparable<F>, S> Map<F, S> toMap(Pair<F, S>... pairs) {
+        return Streams.to(pairs)
+                .toMap();
+    }
+
+    public static <F extends Comparable<F>, S> Map<F, S> toMap(Collection<Pair<F, S>> pairs) {
+        return Streams.to(pairs)
+                .mapToPair(first(), second())
+                .toMap();
     }
 
     private F first;

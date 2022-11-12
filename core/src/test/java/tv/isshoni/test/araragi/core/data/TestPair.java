@@ -187,4 +187,12 @@ public class TestPair {
         assertEquals(p2.getFirst(), "One");
         assertEquals(p2.getSecond().intValue(), 2);
     }
+
+    @Test
+    public void testToMapVarargs() {
+        Map<String, String> map = Pair.toMap(new Pair<>("First", "Second"), new Pair<>("Second", "Third"));
+
+        assertEquals("Second", map.get("First"));
+        assertEquals("Third", map.get("Second"));
+    }
 }
