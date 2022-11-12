@@ -15,6 +15,15 @@ import java.util.List;
 
 public final class ReflectionUtil {
 
+    public static boolean hasConstructor(Class<?> clazz, Class<?>... parameters) {
+        try {
+            clazz.getConstructor(parameters);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
     public static <T> T execute(Class<?> from, Object target, String methodName, Object... parameters) {
         try {
             return (T) from.getMethod(methodName, convertObjectsToClass(parameters)).invoke(target, parameters);
