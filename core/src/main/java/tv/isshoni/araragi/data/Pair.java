@@ -27,18 +27,6 @@ public class Pair<F, S> {
         return Pair::getSecond;
     }
 
-    @SafeVarargs
-    public static <F extends Comparable<F>, S> Map<F, S> toMap(Pair<F, S>... pairs) {
-        return Streams.to(pairs)
-                .toMap();
-    }
-
-    public static <F extends Comparable<F>, S> Map<F, S> toMap(Collection<Pair<F, S>> pairs) {
-        return Streams.to(pairs)
-                .mapToPair(first(), second())
-                .toMap();
-    }
-
     private F first;
 
     private S second;

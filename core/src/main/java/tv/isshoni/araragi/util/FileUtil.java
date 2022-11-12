@@ -2,7 +2,7 @@ package tv.isshoni.araragi.util;
 
 import java.io.InputStream;
 
-public class FileUtil {
+public final class FileUtil {
 
     public static InputStream getResource(String path) {
         return Thread.currentThread().getContextClassLoader()

@@ -1,6 +1,6 @@
 package tv.isshoni.araragi.util;
 
-public class StringUtil {
+public final class StringUtil {
 
     public static String getCharsForNumber(int i) {
         if (i <= 0) {

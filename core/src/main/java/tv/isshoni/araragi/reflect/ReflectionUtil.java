@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ReflectionUtil {
+public final class ReflectionUtil {
 
     public static <T> T execute(Class<?> from, Object target, String methodName, Object... parameters) {
         try {

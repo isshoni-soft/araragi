@@ -3,6 +3,7 @@ package tv.isshoni.araragi.data.collection;
 import tv.isshoni.araragi.stream.Streams;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,17 +14,12 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Careful with this class, it's key aliases map isn't always updated if using the more advanced mutation methods.
- * TODO: Stop being lazy and wrap the mutation methods, consider writing an introspective method that 'recompiles'
- * TODO: the key aliases map.
- *
- * @param <K>
- * @param <V>
- */
-public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
+// TODO: Write update/prune method for key aliases map
+public class TypeMap<K extends Class<?>, V> implements Map<K, V> {
 
     private Map<K, Set<K>> KEY_ALIASES_MAP = new HashMap<>();
+
+    private final Map<K, V> map;
 
     private final boolean parentFirst;
 
@@ -33,16 +29,32 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
     public TypeMap(boolean parentFirst) {
         this.parentFirst = parentFirst;
+        this.map = new HashMap<>();
+    }
+
+    @Override
+    public int size() {
+        return this.map.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.map.isEmpty();
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return super.get(key) != null;
+        return this.map.get(key) != null;
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        return this.map.containsValue(value);
     }
 
     @Override
     public V put(K key, V value) {
-        V result = super.put(key, value);
+        V result = this.map.put(key, value);
 
         if (KEY_ALIASES_MAP.containsKey(key)) {
             updateAlias(key, value);
@@ -57,6 +69,26 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
     }
 
     @Override
+    public void clear() {
+        this.map.clear();
+    }
+
+    @Override
+    public Set<K> keySet() {
+        return this.map.keySet();
+    }
+
+    @Override
+    public Collection<V> values() {
+        return this.map.values();
+    }
+
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+        return this.map.entrySet();
+    }
+
+    @Override
     public V remove(Object key) {
         if (!(key instanceof final Class<?> c)) {
             return null;
@@ -64,7 +96,7 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
         removeAlias((K) c);
 
-        return super.remove(key);
+        return this.map.remove(key);
     }
 
     @Override
@@ -75,7 +107,7 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
 
         removeAlias((K) c);
 
-        return super.remove(key, value);
+        return this.map.remove(key, value);
     }
 
     @Override
@@ -90,7 +122,7 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
     }
 
     public V quickGet(Object o) {
-        return super.get(o);
+        return this.map.get(o);
     }
 
     public V getChild(Object o) {
@@ -152,7 +184,7 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
     private void updateAlias(K key, V value) {
         KEY_ALIASES_MAP.get(key).stream()
                 .filter(this::containsKey)
-                .forEach(c -> super.put(c, value));
+                .forEach(c -> this.map.put(c, value));
     }
 
     private void removeAlias(K clazz) {
@@ -165,7 +197,7 @@ public class TypeMap<K extends Class<?>, V> extends HashMap<K, V> {
     }
 
     private V registerAlias(K clazz, V result) {
-        super.put(clazz, result);
+        this.map.put(clazz, result);
 
         KEY_ALIASES_MAP.putIfAbsent(clazz, new HashSet<>());
         KEY_ALIASES_MAP.get(clazz).add(clazz);
