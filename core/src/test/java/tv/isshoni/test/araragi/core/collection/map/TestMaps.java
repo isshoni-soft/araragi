@@ -1,8 +1,8 @@
-package tv.isshoni.test.araragi.core.collection;
+package tv.isshoni.test.araragi.core.collection.map;
 
 import org.junit.Test;
 import tv.isshoni.araragi.data.Pair;
-import tv.isshoni.araragi.data.collection.Maps;
+import tv.isshoni.araragi.data.collection.map.Maps;
 
 import java.util.Map;
 

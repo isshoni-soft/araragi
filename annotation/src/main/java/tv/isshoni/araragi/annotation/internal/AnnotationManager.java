@@ -9,10 +9,9 @@ import tv.isshoni.araragi.annotation.model.IExecutableInvoker;
 import tv.isshoni.araragi.annotation.model.IParameterSupplier;
 import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
-import tv.isshoni.araragi.data.collection.TypeMap;
+import tv.isshoni.araragi.data.collection.map.TypeMap;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.functional.QuadFunction;
-import tv.isshoni.araragi.functional.TriFunction;
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
@@ -25,8 +24,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

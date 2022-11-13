@@ -1,6 +1,9 @@
-package tv.isshoni.araragi.data.collection;
+package tv.isshoni.araragi.data.collection.map;
+
+import tv.isshoni.araragi.data.collection.Lists;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +11,10 @@ import java.util.Set;
 public class BucketMap<K, V> implements Map<K, List<V>> {
 
     private final Map<K, List<V>> wrapped;
+
+    public BucketMap() {
+        this(new HashMap<>());
+    }
 
     public BucketMap(Map<K, List<V>> wrapped) {
         this.wrapped = wrapped;

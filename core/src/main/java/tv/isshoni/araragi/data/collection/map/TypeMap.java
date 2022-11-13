@@ -1,4 +1,4 @@
-package tv.isshoni.araragi.data.collection;
+package tv.isshoni.araragi.data.collection.map;
 
 import tv.isshoni.araragi.stream.Streams;
 

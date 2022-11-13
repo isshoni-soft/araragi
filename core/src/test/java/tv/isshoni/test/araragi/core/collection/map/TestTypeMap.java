@@ -1,8 +1,8 @@
-package tv.isshoni.test.araragi.core.collection;
+package tv.isshoni.test.araragi.core.collection.map;
 
 import static org.junit.Assert.assertEquals;
 
-import tv.isshoni.araragi.data.collection.TypeMap;
+import tv.isshoni.araragi.data.collection.map.TypeMap;
 
 import org.junit.Before;
 import org.junit.Test;
