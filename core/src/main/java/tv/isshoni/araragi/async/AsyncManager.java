@@ -53,4 +53,9 @@ public class AsyncManager implements IAsyncManager {
             }
         });
     }
+
+    @Override
+    public boolean isMainThread() {
+        return Thread.currentThread().getId() == 1;
+    }
 }

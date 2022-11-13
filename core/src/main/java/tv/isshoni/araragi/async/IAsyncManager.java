@@ -12,4 +12,6 @@ public interface IAsyncManager {
     void addShutdownHook(Runnable runnable);
 
     void hook();
+
+    boolean isMainThread();
 }
