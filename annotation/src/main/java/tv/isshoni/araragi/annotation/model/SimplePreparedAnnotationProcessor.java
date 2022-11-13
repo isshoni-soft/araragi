@@ -13,10 +13,13 @@ public abstract class SimplePreparedAnnotationProcessor {
 
     protected final IAnnotationProcessor<Annotation> processor;
 
-    public SimplePreparedAnnotationProcessor(Annotation annotation,AnnotatedElement element, IAnnotationProcessor<Annotation> processor) {
+    protected final IAnnotationManager annotationManager;
+
+    public SimplePreparedAnnotationProcessor(Annotation annotation, AnnotatedElement element, IAnnotationProcessor<Annotation> processor, IAnnotationManager annotationManager) {
         this.annotation = annotation;
         this.element = element;
         this.processor = processor;
+        this.annotationManager = annotationManager;
     }
 
     public AnnotatedElement getElement() {
@@ -25,6 +28,10 @@ public abstract class SimplePreparedAnnotationProcessor {
 
     public Annotation getAnnotation() {
         return this.annotation;
+    }
+
+    public IAnnotationManager getAnnotationManager() {
+        return this.annotationManager;
     }
 
     public IAnnotationProcessor<Annotation> getProcessorAs() {

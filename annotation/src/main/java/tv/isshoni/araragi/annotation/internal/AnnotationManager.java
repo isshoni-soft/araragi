@@ -11,6 +11,7 @@ import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
 import tv.isshoni.araragi.data.collection.TypeMap;
 import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.functional.QuadFunction;
 import tv.isshoni.araragi.functional.TriFunction;
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
@@ -33,7 +34,7 @@ public class AnnotationManager implements IAnnotationManager {
 
     protected final Map<Class<? extends Annotation>, List<IAnnotationProcessor<?>>> annotationProcessors;
 
-    protected final Map<Class<? extends IAnnotationProcessor>, TriFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor>> preparations;
+    protected final Map<Class<? extends IAnnotationProcessor>, QuadFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IAnnotationManager, IPreparedAnnotationProcessor>> preparations;
 
     protected final Map<Class<? extends Executable>, IExecutableInvoker> executableInvokers;
 
@@ -111,7 +112,7 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public void register(Class<? extends IAnnotationProcessor> processor, TriFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter) {
+    public void register(Class<? extends IAnnotationProcessor> processor, QuadFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IAnnotationManager, IPreparedAnnotationProcessor> converter) {
         this.preparations.put(processor, converter);
     }
 
@@ -223,7 +224,7 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public IPreparedAnnotationProcessor prepare(Annotation annotation, AnnotatedElement element, IAnnotationProcessor<Annotation> processor) {
-        return this.preparations.get(processor.getClass()).apply(annotation, element, processor);
+        return this.preparations.get(processor.getClass()).apply(annotation, element, processor, this);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package tv.isshoni.araragi.annotation.internal;
 
+import tv.isshoni.araragi.annotation.model.IAnnotationManager;
 import tv.isshoni.araragi.annotation.model.IAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.SimplePreparedAnnotationProcessor;
@@ -10,8 +11,8 @@ import java.lang.reflect.AnnotatedElement;
 
 public class PreparedAnnotationProcessor extends SimplePreparedAnnotationProcessor implements IPreparedAnnotationProcessor<IAnnotationProcessor<Annotation>> {
 
-    public PreparedAnnotationProcessor(Annotation annotation, AnnotatedElement element, IAnnotationProcessor<Annotation> processor) {
-        super(annotation, element, processor);
+    public PreparedAnnotationProcessor(Annotation annotation, AnnotatedElement element, IAnnotationProcessor<Annotation> processor, IAnnotationManager annotationManager) {
+        super(annotation, element, processor, annotationManager);
     }
 
     @Override

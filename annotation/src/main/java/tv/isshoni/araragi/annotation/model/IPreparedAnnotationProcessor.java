@@ -8,15 +8,15 @@ import java.lang.reflect.Method;
 public interface IPreparedAnnotationProcessor<T extends IAnnotationProcessor<Annotation>> extends Comparable<IPreparedAnnotationProcessor<T>> {
 
     default void executeClass(Object target) {
-        this.getProcessor().executeClass(target, (Class<?>) getElement(), this.getAnnotation());
+        this.getProcessor().executeClass(target, (Class<?>) getElement(), this.getAnnotation(), this.getAnnotationManager());
     }
 
     default void executeMethod(Object target) {
-        this.getProcessor().executeMethod(target, (Method) getElement(), this.getAnnotation());
+        this.getProcessor().executeMethod(target, (Method) getElement(), this.getAnnotation(), this.getAnnotationManager());
     }
 
     default void executeField(Object target) {
-        this.getProcessor().executeField(target, (Field) getElement(), this.getAnnotation());
+        this.getProcessor().executeField(target, (Field) getElement(), this.getAnnotation(), this.getAnnotationManager());
     }
 
     default int compareTo(IPreparedAnnotationProcessor o) {
@@ -26,6 +26,8 @@ public interface IPreparedAnnotationProcessor<T extends IAnnotationProcessor<Ann
     Annotation getAnnotation();
 
     AnnotatedElement getElement();
+
+    IAnnotationManager getAnnotationManager();
 
     T getProcessor();
 }

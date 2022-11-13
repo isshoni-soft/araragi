@@ -1,6 +1,7 @@
 package tv.isshoni.araragi.annotation.model;
 
 import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.functional.QuadFunction;
 import tv.isshoni.araragi.functional.TriFunction;
 
 import java.lang.annotation.Annotation;
@@ -30,7 +31,7 @@ public interface IAnnotationManager {
 
     void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors);
 
-    void register(Class<? extends IAnnotationProcessor> processor, TriFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IPreparedAnnotationProcessor> converter);
+    void register(Class<? extends IAnnotationProcessor> processor, QuadFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IAnnotationManager, IPreparedAnnotationProcessor> converter);
 
     void register(Class<? extends Annotation> annotation, IAnnotationProcessor<?>... processors);
 

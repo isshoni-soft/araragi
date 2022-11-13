@@ -1,5 +1,6 @@
 package tv.isshoni.araragi.annotation.internal;
 
+import tv.isshoni.araragi.annotation.model.IAnnotationManager;
 import tv.isshoni.araragi.annotation.model.IAnnotationProcessor;
 import tv.isshoni.araragi.annotation.model.IParameterSupplier;
 import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
@@ -12,8 +13,8 @@ import java.lang.reflect.Parameter;
 
 public class PreparedParameterSupplier extends SimplePreparedAnnotationProcessor implements IPreparedParameterSupplier<IParameterSupplier<Annotation, Object>> {
 
-    public PreparedParameterSupplier(Annotation annotation,AnnotatedElement element, IAnnotationProcessor<Annotation> processor) {
-        super(annotation, element, processor);
+    public PreparedParameterSupplier(Annotation annotation,AnnotatedElement element, IAnnotationProcessor<Annotation> processor, IAnnotationManager annotationManager) {
+        super(annotation, element, processor, annotationManager);
     }
 
     @Override
