@@ -196,7 +196,7 @@ public class AnnotationManager implements IAnnotationManager {
     public <A extends Annotation> int calculateWeight(Collection<A> annotations) {
         return convertCollectionToProcessorStream(annotations)
                 .mapToInt(p -> p.getSecond().getWeight(p.getFirst()))
-                .sum();
+                .max().orElse(0);
     }
 
     @Override
