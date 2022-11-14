@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Deprecated // TODO: Incomplete class
 public class Annotations {
 
 //    public static <E extends Annotation> E getAnnotation(AnnotatedElement element, Class<? extends E> annotation) {
