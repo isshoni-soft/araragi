@@ -1,8 +1,10 @@
-package tv.isshoni.araragi.annotation.model;
+package tv.isshoni.araragi.annotation.discovery;
 
 import org.reflections8.Reflections;
 import tv.isshoni.araragi.annotation.AttachTo;
 import tv.isshoni.araragi.annotation.Processor;
+import tv.isshoni.araragi.annotation.manager.IAnnotationManager;
+import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
 import tv.isshoni.araragi.reflect.ReflectionUtil;
 import tv.isshoni.araragi.stream.Streams;
 

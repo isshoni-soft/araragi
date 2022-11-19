@@ -1,4 +1,4 @@
-package tv.isshoni.araragi.annotation.model;
+package tv.isshoni.araragi.annotation.processor.weight;
 
 public interface IAnnotationWeightEnum {
 

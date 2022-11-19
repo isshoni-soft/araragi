@@ -1,6 +1,7 @@
-package tv.isshoni.araragi.annotation.model;
+package tv.isshoni.araragi.annotation.processor;
 
-import tv.isshoni.araragi.annotation.internal.WeightCalculator;
+import tv.isshoni.araragi.annotation.processor.weight.WeightCalculator;
+import tv.isshoni.araragi.annotation.manager.IAnnotationManager;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

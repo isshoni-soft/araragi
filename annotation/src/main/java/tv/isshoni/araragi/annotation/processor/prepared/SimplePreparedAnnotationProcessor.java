@@ -1,6 +1,7 @@
-package tv.isshoni.araragi.annotation.model;
+package tv.isshoni.araragi.annotation.processor.prepared;
 
-import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.annotation.manager.IAnnotationManager;
+import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;

@@ -5,8 +5,7 @@ import org.reflections8.scanners.SubTypesScanner;
 import org.reflections8.scanners.TypeAnnotationsScanner;
 import org.reflections8.util.ConfigurationBuilder;
 import org.reflections8.util.FilterBuilder;
-import tv.isshoni.araragi.annotation.model.IAnnotationDiscoverer;
-import tv.isshoni.araragi.annotation.model.IAnnotationManager;
+import tv.isshoni.araragi.annotation.manager.IAnnotationManager;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,8 +20,12 @@ public class SimpleAnnotationDiscoverer implements IAnnotationDiscoverer {
     protected final IAnnotationManager annotationManager;
 
     public SimpleAnnotationDiscoverer(IAnnotationManager annotationManager) {
+        this(annotationManager, new LinkedList<>());
+    }
+
+    public SimpleAnnotationDiscoverer(IAnnotationManager annotationManager, List<String> packages) {
         this.annotationManager = annotationManager;
-        this.packages = new LinkedList<>();
+        this.packages = packages;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package tv.isshoni.araragi.annotation.model;
+package tv.isshoni.araragi.annotation.processor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;

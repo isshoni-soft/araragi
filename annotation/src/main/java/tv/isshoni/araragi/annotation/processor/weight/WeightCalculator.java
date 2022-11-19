@@ -1,8 +1,7 @@
-package tv.isshoni.araragi.annotation.internal;
+package tv.isshoni.araragi.annotation.processor.weight;
 
 import tv.isshoni.araragi.annotation.Weight;
 import tv.isshoni.araragi.annotation.exception.NoWeightException;
-import tv.isshoni.araragi.annotation.model.IAnnotationWeightEnum;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;

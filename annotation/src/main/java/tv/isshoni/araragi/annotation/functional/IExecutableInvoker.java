@@ -1,4 +1,4 @@
-package tv.isshoni.araragi.annotation.model;
+package tv.isshoni.araragi.annotation.functional;
 
 import java.lang.reflect.Executable;
 import java.util.Map;

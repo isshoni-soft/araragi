@@ -1,5 +1,8 @@
-package tv.isshoni.araragi.annotation.model;
+package tv.isshoni.araragi.annotation.manager;
 
+import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
+import tv.isshoni.araragi.annotation.functional.IExecutableInvoker;
+import tv.isshoni.araragi.annotation.processor.prepared.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.functional.QuadFunction;
 

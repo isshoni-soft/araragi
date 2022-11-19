@@ -2,8 +2,7 @@ package tv.isshoni.araragi.annotation.test;
 
 import static org.junit.Assert.assertEquals;
 
-import net.bytebuddy.implementation.bytecode.Throw;
-import tv.isshoni.araragi.annotation.internal.AnnotationManager;
+import tv.isshoni.araragi.annotation.manager.AnnotationManager;
 import tv.isshoni.araragi.annotation.test.model.Second;
 import tv.isshoni.araragi.annotation.test.model.TestAnnotation;
 

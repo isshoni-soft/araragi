@@ -1,15 +1,11 @@
-package tv.isshoni.araragi.annotation.internal;
+package tv.isshoni.araragi.annotation.processor.prepared;
 
-import tv.isshoni.araragi.annotation.model.IAnnotationManager;
-import tv.isshoni.araragi.annotation.model.IAnnotationProcessor;
-import tv.isshoni.araragi.annotation.model.IParameterSupplier;
-import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
-import tv.isshoni.araragi.annotation.model.SimplePreparedAnnotationProcessor;
-import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.annotation.manager.IAnnotationManager;
+import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
+import tv.isshoni.araragi.annotation.processor.IParameterSupplier;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Parameter;
 
 public class PreparedParameterSupplier extends SimplePreparedAnnotationProcessor implements IPreparedParameterSupplier<IParameterSupplier<Annotation, Object>> {
 

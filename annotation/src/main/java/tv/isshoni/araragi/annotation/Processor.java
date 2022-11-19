@@ -1,6 +1,6 @@
 package tv.isshoni.araragi.annotation;
 
-import tv.isshoni.araragi.annotation.model.IAnnotationProcessor;
+import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

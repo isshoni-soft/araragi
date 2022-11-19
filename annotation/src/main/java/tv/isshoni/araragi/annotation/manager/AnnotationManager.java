@@ -1,14 +1,15 @@
-package tv.isshoni.araragi.annotation.internal;
+package tv.isshoni.araragi.annotation.manager;
 
 import tv.isshoni.araragi.annotation.AttachTo;
 import tv.isshoni.araragi.annotation.DefaultConstructor;
 import tv.isshoni.araragi.annotation.Processor;
-import tv.isshoni.araragi.annotation.model.IAnnotationManager;
-import tv.isshoni.araragi.annotation.model.IAnnotationProcessor;
-import tv.isshoni.araragi.annotation.model.IExecutableInvoker;
-import tv.isshoni.araragi.annotation.model.IParameterSupplier;
-import tv.isshoni.araragi.annotation.model.IPreparedAnnotationProcessor;
-import tv.isshoni.araragi.annotation.model.IPreparedParameterSupplier;
+import tv.isshoni.araragi.annotation.processor.prepared.PreparedAnnotationProcessor;
+import tv.isshoni.araragi.annotation.processor.prepared.PreparedParameterSupplier;
+import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
+import tv.isshoni.araragi.annotation.functional.IExecutableInvoker;
+import tv.isshoni.araragi.annotation.processor.IParameterSupplier;
+import tv.isshoni.araragi.annotation.processor.prepared.IPreparedAnnotationProcessor;
+import tv.isshoni.araragi.annotation.processor.prepared.IPreparedParameterSupplier;
 import tv.isshoni.araragi.data.collection.map.TypeMap;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.functional.QuadFunction;
