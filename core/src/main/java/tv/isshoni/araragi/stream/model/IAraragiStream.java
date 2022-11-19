@@ -4,7 +4,10 @@ import tv.isshoni.araragi.data.Pair;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.function.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public interface IAraragiStream<T> extends Stream<T> {
@@ -29,7 +32,13 @@ public interface IAraragiStream<T> extends Stream<T> {
 
     <R> R collapse(BiFunction<? super T, R, R> mapper, R first);
 
+    Optional<T> find(Predicate<T>... selectors);
+
     Optional<T> find(Predicate<T> selector, Function<IAraragiStream<T>, Optional<T>> otherwise);
+
+    Optional<T> find(Predicate<T> selector, Optional<T> otherwise);
+
+    Optional<T> find(Predicate<T> selector, Supplier<Optional<T>> otherwise);
 
     void addTo(Collection<T> collection);
 

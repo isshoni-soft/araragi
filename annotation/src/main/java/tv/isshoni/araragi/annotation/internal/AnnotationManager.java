@@ -16,7 +16,13 @@ import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,6 +30,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -124,6 +131,8 @@ public class AnnotationManager implements IAnnotationManager {
 
             return v;
         });
+
+        Streams.to(processors).forEach(IAnnotationProcessor::onDiscovery);
     }
 
     @Override
@@ -183,6 +192,31 @@ public class AnnotationManager implements IAnnotationManager {
                         .flatMap(a -> Streams.to(a).map(Annotation::annotationType))
                         .anyMatch(getAnnotationsWithProcessorType(IParameterSupplier.class)::contains))
                 .find(c -> c.isAnnotationPresent(DefaultConstructor.class), Stream::findFirst)
+                .orElseGet(() -> {
+                    try {
+                        return clazz.getConstructor();
+                    } catch (NoSuchMethodException e) {
+                        return null;
+                    }
+                });
+    }
+
+    @Override
+    public Constructor<?> discoverConstructor(Class<?> clazz, boolean strict) {
+        if (strict) {
+            discoverConstructor(clazz);
+        }
+
+        return Streams.to(clazz.getDeclaredConstructors())
+                .find(c -> c.isAnnotationPresent(DefaultConstructor.class), (Predicate<Constructor<?>>) c -> {
+                    for (Parameter parameter : c.getParameters()) {
+                        if (parameter.getAnnotations().length > 0) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
                 .orElseGet(() -> {
                     try {
                         return clazz.getConstructor();
@@ -265,8 +299,12 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public boolean isManagedAnnotation(Annotation annotation) {
-        return Streams.to(this.annotationProcessors.keySet())
-                .anyMatch(m -> annotation.annotationType().equals(m));
+        return isManagedAnnotation(annotation.annotationType());
+    }
+
+    @Override
+    public boolean isManagedAnnotation(Class<? extends Annotation> clazz) {
+        return this.annotationProcessors.containsKey(clazz);
     }
 
     @Override

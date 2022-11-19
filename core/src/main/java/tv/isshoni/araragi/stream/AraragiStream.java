@@ -109,6 +109,24 @@ public class AraragiStream<T> implements IAraragiStream<T> {
         return reference.get();
     }
 
+    @SafeVarargs
+    @Override
+    public final Optional<T> find(Predicate<T>... selectors) {
+        List<T> snapshot = this.stream.toList();
+
+        for (Predicate<T> selector : selectors) {
+            List<T> clone = new LinkedList<>(snapshot);
+
+            Optional<T> result = Streams.to(clone).filter(selector).findFirst();
+
+            if (result.isPresent()) {
+                return result;
+            }
+        }
+
+        return Optional.empty();
+    }
+
     @Override
     public Optional<T> find(Predicate<T> selector, Function<IAraragiStream<T>, Optional<T>> otherwise) {
         List<T> snapshot = this.stream.collect(Collectors.toList());
@@ -120,6 +138,32 @@ public class AraragiStream<T> implements IAraragiStream<T> {
         }
 
         return otherwise.apply(Streams.to(snapshot));
+    }
+
+    @Override
+    public Optional<T> find(Predicate<T> selector, Optional<T> otherwise) {
+        List<T> snapshot = this.stream.collect(Collectors.toList());
+
+        Optional<T> result = Streams.to(snapshot).filter(selector).findFirst();
+
+        if (result.isPresent()) {
+            return result;
+        }
+
+        return otherwise;
+    }
+
+    @Override
+    public Optional<T> find(Predicate<T> selector, Supplier<Optional<T>> otherwise) {
+        List<T> snapshot = this.stream.collect(Collectors.toList());
+
+        Optional<T> result = Streams.to(snapshot).filter(selector).findFirst();
+
+        if (result.isPresent()) {
+            return result;
+        }
+
+        return otherwise.get();
     }
 
     @Override

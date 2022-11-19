@@ -183,8 +183,24 @@ public class PairStream<F, S> implements IPairStream<F, S> {
         return this.stream.collapse(mapper, first);
     }
 
+    @SafeVarargs
+    @Override
+    public final Optional<Pair<F, S>> find(Predicate<Pair<F, S>>... selectors) {
+        return this.stream.find(selectors);
+    }
+
     @Override
     public Optional<Pair<F, S>> find(Predicate<Pair<F, S>> selector, Function<IAraragiStream<Pair<F, S>>, Optional<Pair<F, S>>> otherwise) {
+        return this.stream.find(selector, otherwise);
+    }
+
+    @Override
+    public Optional<Pair<F, S>> find(Predicate<Pair<F, S>> selector, Optional<Pair<F, S>> otherwise) {
+        return this.stream.find(selector, otherwise);
+    }
+
+    @Override
+    public Optional<Pair<F, S>> find(Predicate<Pair<F, S>> selector, Supplier<Optional<Pair<F, S>>> otherwise) {
         return this.stream.find(selector, otherwise);
     }
 

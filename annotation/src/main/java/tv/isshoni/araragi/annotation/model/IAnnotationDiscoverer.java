@@ -1,66 +1,20 @@
 package tv.isshoni.araragi.annotation.model;
 
+import org.reflections8.Reflections;
 import tv.isshoni.araragi.annotation.AttachTo;
-import tv.isshoni.araragi.annotation.DefaultConstructor;
 import tv.isshoni.araragi.annotation.Processor;
 import tv.isshoni.araragi.reflect.ReflectionUtil;
 import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.reflections8.Reflections;
+import java.util.Stack;
+import java.util.stream.Collectors;
 
 public interface IAnnotationDiscoverer {
-
-    Comparator<Class<? extends Annotation>> PARAMETER_DEPENDENCY_COMPARATOR = (f, s) -> {
-        Processor firstProcessor = f.getAnnotation(Processor.class);
-        Processor secondProcessor = s.getAnnotation(Processor.class);
-
-        Set<Class<? extends Annotation>> firstDeps = new HashSet<>(Streams.to(firstProcessor.value())
-                .flatMap(pc -> ReflectionUtil.discoverAnnotatedConstructors(pc, DefaultConstructor.class).stream()
-                        .flatMap(c -> ReflectionUtil.getAllParameterAnnotationTypes(c).stream()))
-                .toList());
-
-        Set<Class<? extends Annotation>> secondDeps = new HashSet<>(Streams.to(secondProcessor.value())
-                .flatMap(pc -> ReflectionUtil.discoverAnnotatedConstructors(pc, DefaultConstructor.class).stream()
-                        .flatMap(c -> ReflectionUtil.getAllParameterAnnotationTypes(c).stream()))
-                .toList());
-
-        boolean secondEmpty = secondDeps.isEmpty();
-
-        if (firstDeps.isEmpty()) {
-            if (secondEmpty) {
-                return 0;
-            }
-
-            return 1;
-        }
-
-        if (secondEmpty) {
-            return -1;
-        }
-
-        boolean secondContains = secondDeps.contains(f);
-
-        if (firstDeps.contains(s)) {
-            if (secondContains) {
-                throw new IllegalStateException("Circular dependencies found: " + f.getName() + " <-> " + s.getName());
-            }
-
-            return -1;
-        }
-
-        if (secondContains) {
-            return 1;
-        }
-
-        return 0;
-    };
 
     IAnnotationManager getAnnotationManager();
 
@@ -72,36 +26,71 @@ public interface IAnnotationDiscoverer {
 
     Reflections construct();
 
-    default IAnnotationDiscoverer discoverParameterAnnotations() {
-        construct().getTypesAnnotatedWith(Processor.class).stream()
+    default Set<Class<? extends Annotation>> findProcessorAnnotations() {
+        return construct().getTypesAnnotatedWith(Processor.class).stream()
                 .map(c -> (Class<? extends Annotation>) c)
                 .filter(c -> c.isAnnotationPresent(Processor.class))
-                .filter(c -> Streams.to(c.getAnnotation(Processor.class).value())
-                        .anyMatch(IParameterSupplier.class::isAssignableFrom))
-                .sorted(PARAMETER_DEPENDENCY_COMPARATOR.reversed())
-                .forEachOrdered(getAnnotationManager()::discoverAnnotation);
+                .collect(Collectors.toSet());
+    }
 
-        return this;
+    default Set<Class<? extends IAnnotationProcessor<Annotation>>> findAttachedProcessors() {
+        return construct().getTypesAnnotatedWith(AttachTo.class).stream()
+                .filter(c -> c.isAnnotationPresent(AttachTo.class))
+                .filter(IAnnotationProcessor.class::isAssignableFrom)
+                .map(c -> (Class<? extends IAnnotationProcessor<Annotation>>) c)
+                .collect(Collectors.toSet());
     }
 
     default IAnnotationDiscoverer discoverAnnotations() {
-        construct().getTypesAnnotatedWith(Processor.class).stream()
-                .map(c -> (Class<? extends Annotation>) c)
-                .filter(c -> c.isAnnotationPresent(Processor.class))
-                .filter(c -> Streams.to(c.getAnnotation(Processor.class).value())
-                        .noneMatch(IParameterSupplier.class::isAssignableFrom))
-                .forEachOrdered(getAnnotationManager()::discoverAnnotation);
+        Set<Class<? extends Annotation>> all = findProcessorAnnotations();
+
+        all.forEach(ac -> safelyRecursiveDiscover(ac, all, new Stack<>()));
 
         return this;
     }
 
     default IAnnotationDiscoverer discoverAttachedProcessors() {
-        construct().getTypesAnnotatedWith(AttachTo.class).stream()
-                .filter(c -> c.isAnnotationPresent(AttachTo.class))
-                .filter(IAnnotationProcessor.class::isAssignableFrom)
-                .map(c -> (Class<IAnnotationProcessor<Annotation>>) c)
-                .forEach(getAnnotationManager()::discoverProcessor);
+        findAttachedProcessors().forEach(getAnnotationManager()::discoverProcessor);
 
         return this;
+    }
+
+    default void safelyRecursiveDiscover(Class<? extends Annotation> clazz, Set<Class<? extends Annotation>> all, Stack<Class<? extends Annotation>> levels) {
+        if (getAnnotationManager().isManagedAnnotation(clazz)) {
+            return;
+        }
+
+        List<Executable> constructors = Streams.to(clazz.getAnnotation(Processor.class).value())
+                .map(c -> getAnnotationManager().discoverConstructor(c, false))
+                .collect(Collectors.toList());
+
+        if (constructors.isEmpty()) {
+            return;
+        }
+
+        List<Class<? extends Annotation>> annotations = ReflectionUtil.getAllParameterAnnotationTypes(constructors);
+
+        if (annotations.isEmpty() || annotations.stream().allMatch(getAnnotationManager()::isManagedAnnotation)) {
+            getAnnotationManager().discoverAnnotation(clazz);
+            return;
+        }
+
+        List<Class<? extends Annotation>> unregistered = Streams.to(annotations)
+                .filterInverted(getAnnotationManager()::isManagedAnnotation)
+                .toList();
+
+        for (Class<? extends Annotation> uclazz : unregistered) {
+            if (clazz.equals(uclazz) || levels.contains(uclazz)) {
+                throw new IllegalStateException("Found circular dependency; Levels: " + levels + " Current: " + clazz + " UClass: " + uclazz);
+            }
+
+            if (all.contains(uclazz)) {
+                levels.add(clazz);
+                safelyRecursiveDiscover(uclazz, all, levels);
+                levels.pop();
+            }
+        }
+
+        getAnnotationManager().discoverAnnotation(clazz);
     }
 }

@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -87,6 +88,10 @@ public final class ReflectionUtil {
         }
 
         return result;
+    }
+
+    public static List<Class<? extends Annotation>> getAllParameterAnnotationTypes(Collection<Executable> executables) {
+        return Streams.to(executables).flatMap(e -> ReflectionUtil.getAllParameterAnnotationTypes(e).stream()).toList();
     }
 
     public static List<Class<? extends Annotation>> getAllParameterAnnotationTypes(Executable executable) {

@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface IAnnotationProcessor<A extends Annotation> {
 
+    default void onDiscovery() { }
+
     default void executeClass(Object target, Class<?> clazz, A annotation) { }
 
     default void executeField(Object target, Field field, A annotation) { }

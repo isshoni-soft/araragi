@@ -2,7 +2,6 @@ package tv.isshoni.araragi.annotation.model;
 
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.functional.QuadFunction;
-import tv.isshoni.araragi.functional.TriFunction;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -11,7 +10,6 @@ import java.lang.reflect.Executable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 public interface IAnnotationManager {
 
@@ -49,6 +47,8 @@ public interface IAnnotationManager {
 
     Constructor<?> discoverConstructor(Class<?> clazz);
 
+    Constructor<?> discoverConstructor(Class<?> clazz, boolean strict);
+
     <A extends Annotation> int calculateWeight(Collection<A> annotations);
 
     List<IAnnotationProcessor<?>> get(Class<? extends Annotation> annotation);
@@ -68,6 +68,8 @@ public interface IAnnotationManager {
     boolean hasManagedAnnotation(AnnotatedElement element);
 
     boolean isManagedAnnotation(Annotation annotation);
+
+    boolean isManagedAnnotation(Class<? extends Annotation> clazz);
 
     <A extends Annotation> boolean hasConflictingAnnotations(Collection<A> annotations);
 

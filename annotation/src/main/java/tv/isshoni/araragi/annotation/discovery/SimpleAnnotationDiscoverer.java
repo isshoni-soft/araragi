@@ -1,5 +1,9 @@
 package tv.isshoni.araragi.annotation.discovery;
 
+import org.reflections8.Reflections;
+import org.reflections8.scanners.SubTypesScanner;
+import org.reflections8.scanners.TypeAnnotationsScanner;
+import org.reflections8.util.ConfigurationBuilder;
 import org.reflections8.util.FilterBuilder;
 import tv.isshoni.araragi.annotation.model.IAnnotationDiscoverer;
 import tv.isshoni.araragi.annotation.model.IAnnotationManager;
@@ -9,15 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
-import org.reflections8.Reflections;
-import org.reflections8.scanners.SubTypesScanner;
-import org.reflections8.scanners.TypeAnnotationsScanner;
-import org.reflections8.util.ConfigurationBuilder;
-
-// TODO: Write some sort of load order management code into me; aka, find dependent annotations and
-// TODO: Ensure that they're loaded first.
 public class SimpleAnnotationDiscoverer implements IAnnotationDiscoverer {
 
     protected final List<String> packages;
