@@ -28,13 +28,15 @@ public interface IAnnotationManager {
 
     void register(Class<? extends Annotation>[] annotations, Class<? extends IAnnotationProcessor<?>>... processors);
 
-    void register(Class<? extends Annotation>[] annotations, IAnnotationProcessor<?>... processors);
+    void register(Class<? extends Annotation>[] annotations, IAnnotationProcessor<Annotation>... processors);
 
     void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors);
 
     void register(Class<? extends IAnnotationProcessor> processor, QuadFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IAnnotationManager, IPreparedAnnotationProcessor> converter);
 
-    void register(Class<? extends Annotation> annotation, IAnnotationProcessor<?>... processors);
+    void register(Class<? extends Annotation> annotation, IAnnotationProcessor<Annotation>... processors);
+
+    void register(Class<? extends Annotation> annotation, Collection<IAnnotationProcessor<Annotation>> processors);
 
     <T extends Executable> void register(Class<T> executable, IExecutableInvoker<T> invoker);
 

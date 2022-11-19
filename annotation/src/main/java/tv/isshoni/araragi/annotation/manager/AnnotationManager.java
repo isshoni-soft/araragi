@@ -88,32 +88,35 @@ public class AnnotationManager implements IAnnotationManager {
         register(processor.getAnnotation(AttachTo.class).value(), processor);
     }
 
+    @SafeVarargs
     @Override
-    public void register(Class<? extends Annotation>[] annotations, Class<? extends IAnnotationProcessor<?>>... processors) {
+    public final void register(Class<? extends Annotation>[] annotations, Class<? extends IAnnotationProcessor<?>>... processors) {
         for (Class<? extends Annotation> annotation : annotations) {
             register(annotation, processors);
         }
     }
 
+    @SafeVarargs
     @Override
-    public void register(Class<? extends Annotation>[] annotations, IAnnotationProcessor<?>... processors) {
+    public final void register(Class<? extends Annotation>[] annotations, IAnnotationProcessor<Annotation>... processors) {
         for (Class<? extends Annotation> annotation : annotations) {
             register(annotation, processors);
         }
     }
 
+    @SafeVarargs
     @Override
-    public void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors) {
+    public final void register(Class<? extends Annotation> annotation, Class<? extends IAnnotationProcessor<?>>... processors) {
         register(annotation, Streams.to(processors)
                 .map(this::discoverConstructor)
                 .map(c -> {
                     try {
-                        return this.execute(c, null);
+                        return (IAnnotationProcessor<Annotation>) this.execute(c, null);
                     } catch (Throwable e) {
                         throw new RuntimeException(e);
                     }
                 })
-                .toArray(IAnnotationProcessor<?>[]::new));
+                .toList());
     }
 
     @Override
@@ -121,19 +124,25 @@ public class AnnotationManager implements IAnnotationManager {
         this.preparations.put(processor, converter);
     }
 
+    @SafeVarargs
     @Override
-    public void register(Class<? extends Annotation> annotation, IAnnotationProcessor<?>... processors) {
+    public final void register(Class<? extends Annotation> annotation, IAnnotationProcessor<Annotation>... processors) {
+        register(annotation, Arrays.asList(processors));
+    }
+
+    @Override
+    public void register(Class<? extends Annotation> annotation, Collection<IAnnotationProcessor<Annotation>> processors) {
         this.annotationProcessors.compute(annotation, (a, v) -> {
             if (v == null) {
                 v = new LinkedList<>();
             }
 
-            v.addAll(Arrays.asList(processors));
+            v.addAll(processors);
 
             return v;
         });
 
-        Streams.to(processors).forEach(IAnnotationProcessor::onDiscovery);
+        Streams.to(processors).forEach(p -> p.onDiscovery((Class<Annotation>) annotation));
     }
 
     @Override

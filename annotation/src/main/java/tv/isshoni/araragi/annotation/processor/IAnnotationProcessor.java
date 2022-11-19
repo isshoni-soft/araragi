@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface IAnnotationProcessor<A extends Annotation> {
 
-    default void onDiscovery() { }
+    default void onDiscovery(Class<A> clazz) { }
 
     default void executeClass(Object target, Class<?> clazz, A annotation) { }
 
