@@ -11,8 +11,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class ReflectionUtil {
 
@@ -90,15 +93,19 @@ public final class ReflectionUtil {
         return result;
     }
 
-    public static List<Class<? extends Annotation>> getAllParameterAnnotationTypes(Collection<Executable> executables) {
-        return Streams.to(executables).flatMap(e -> ReflectionUtil.getAllParameterAnnotationTypes(e).stream()).toList();
+    public static Set<Class<? extends Annotation>> getAllParameterAnnotationTypes(Collection<Executable> executables) {
+        return Streams.to(executables)
+                .flatMap(e -> ReflectionUtil.getAllParameterAnnotationTypes(e).stream())
+                .collect(Collectors.toSet());
     }
 
-    public static List<Class<? extends Annotation>> getAllParameterAnnotationTypes(Executable executable) {
-        List<Class<? extends Annotation>> result = new LinkedList<>();
+    public static Set<Class<? extends Annotation>> getAllParameterAnnotationTypes(Executable executable) {
+        HashSet<Class<? extends Annotation>> result = new HashSet<>();
 
         for (Parameter parameter : executable.getParameters()) {
-            result.addAll(Streams.to(parameter.getAnnotations()).map(Annotation::annotationType).toList());
+            result.addAll(Streams.to(parameter.getAnnotations())
+                    .map(Annotation::annotationType)
+                    .toList());
         }
 
         return result;

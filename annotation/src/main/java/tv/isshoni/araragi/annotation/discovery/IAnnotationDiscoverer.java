@@ -74,7 +74,7 @@ public interface IAnnotationDiscoverer {
             return;
         }
 
-        List<Class<? extends Annotation>> annotations = ReflectionUtil.getAllParameterAnnotationTypes(constructors);
+        Set<Class<? extends Annotation>> annotations = ReflectionUtil.getAllParameterAnnotationTypes(constructors);
 
         if (annotations.isEmpty() || annotations.stream().allMatch(getAnnotationManager()::isManagedAnnotation)) {
             getAnnotationManager().discoverAnnotation(clazz);
