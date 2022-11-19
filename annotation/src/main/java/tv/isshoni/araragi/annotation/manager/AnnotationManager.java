@@ -142,8 +142,11 @@ public class AnnotationManager implements IAnnotationManager {
             return v;
         });
 
+        postRegisterProcessors(annotation, processors);
         Streams.to(processors).forEach(p -> p.onDiscovery((Class<Annotation>) annotation));
     }
+
+    protected void postRegisterProcessors(Class<? extends Annotation> annotation, Collection<IAnnotationProcessor<Annotation>> processors) { }
 
     @Override
     public <T extends Executable> void register(Class<T> executable, IExecutableInvoker<T> invoker) {
