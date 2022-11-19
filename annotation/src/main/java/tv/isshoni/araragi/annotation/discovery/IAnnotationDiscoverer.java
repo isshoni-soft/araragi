@@ -28,16 +28,20 @@ public interface IAnnotationDiscoverer {
 
     Reflections construct();
 
+    default <A extends Annotation> Set<Class<?>> findWithAnnotations(Class<A> clazz) {
+        return construct().getTypesAnnotatedWith(clazz).stream()
+                .filter(c -> c.isAnnotationPresent(clazz))
+                .collect(Collectors.toSet());
+    }
+
     default Set<Class<? extends Annotation>> findProcessorAnnotations() {
-        return construct().getTypesAnnotatedWith(Processor.class).stream()
+        return findWithAnnotations(Processor.class).stream()
                 .map(c -> (Class<? extends Annotation>) c)
-                .filter(c -> c.isAnnotationPresent(Processor.class))
                 .collect(Collectors.toSet());
     }
 
     default Set<Class<? extends IAnnotationProcessor<Annotation>>> findAttachedProcessors() {
-        return construct().getTypesAnnotatedWith(AttachTo.class).stream()
-                .filter(c -> c.isAnnotationPresent(AttachTo.class))
+        return findWithAnnotations(AttachTo.class).stream()
                 .filter(IAnnotationProcessor.class::isAssignableFrom)
                 .map(c -> (Class<? extends IAnnotationProcessor<Annotation>>) c)
                 .collect(Collectors.toSet());
