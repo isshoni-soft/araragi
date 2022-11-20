@@ -13,10 +13,12 @@ import tv.isshoni.araragi.annotation.processor.prepared.IPreparedParameterSuppli
 import tv.isshoni.araragi.data.collection.map.TypeMap;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.functional.QuadFunction;
+import tv.isshoni.araragi.reflect.ReflectionUtil;
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -28,9 +30,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -273,8 +277,13 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, List<Annotation>> annotations) {
-        return convertCollectionToProcessorStream(annotations.getSecond())
-                .map((a, p) -> this.prepare(a, annotations.getFirst(), p))
+        return toExecutionList(annotations.getFirst(), annotations.getSecond());
+    }
+
+    @Override
+    public List<IPreparedAnnotationProcessor> toExecutionList(AnnotatedElement element, List<Annotation> annotations) {
+        return convertCollectionToProcessorStream(annotations)
+                .map((a, p) -> this.prepare(a, element, p))
                 .sorted()
                 .collect(Collectors.toList());
     }
@@ -345,13 +354,73 @@ public class AnnotationManager implements IAnnotationManager {
                 .sum();
     }
 
+    @Override
+    public Set<Class<?>> getAllTypesForConstruction(Class<?> clazz) {
+        HashSet<Class<?>> result = new HashSet<>();
+        Constructor<?> constructor = discoverConstructor(clazz, false);
+
+        if (constructor == null) {
+            return result;
+        }
+
+        result.addAll(Arrays.asList(constructor.getParameterTypes()));
+
+        return result;
+    }
+
+    @Override
+    public Set<Class<? extends Annotation>> getAllAnnotationsForConstruction(Class<?> clazz) {
+        HashSet<Class<? extends Annotation>> result = new HashSet<>();
+        Constructor<?> constructor = discoverConstructor(clazz, false);
+
+        if (constructor == null) {
+            return result;
+        }
+
+        result.addAll(ReflectionUtil.getAllParameterAnnotationTypes(constructor));
+        Streams.to(constructor.getParameterTypes()).forEach(c ->
+                result.addAll(getAllAnnotationsForConstruction(c)));
+
+        return result;
+    }
+
+    @Override
+    public Set<Class<? extends Annotation>> getAllAnnotationsIn(Class<?> clazz) {
+        Set<Class<? extends Annotation>> result = getAllAnnotationsForConstruction(clazz);
+
+        Streams.to(clazz.getAnnotations())
+                .map(Annotation::annotationType)
+                .forEach(result::add);
+
+        Streams.to(clazz.getDeclaredMethods())
+                .map(AccessibleObject::getAnnotations)
+                .map(Arrays::asList)
+                .flatMap(List::stream)
+                .map(Annotation::annotationType)
+                .forEach(result::add);
+
+        Streams.to(clazz.getDeclaredFields())
+                .map(AccessibleObject::getAnnotations)
+                .map(Arrays::asList)
+                .flatMap(List::stream)
+                .map(Annotation::annotationType)
+                .forEach(result::add);
+
+        return result;
+    }
+
+    @Override
+    public boolean canRegister(Class<? extends Annotation> clazz) {
+        return clazz.isAnnotationPresent(Processor.class);
+    }
+
     protected List<List<IPreparedAnnotationProcessor>> annotatedElementToExecutionList(AnnotatedElement... elements) {
         return Streams.to(elements)
                 .cast(AnnotatedElement.class)
                 .mapToPair(p -> p, p -> Streams.to(p.getAnnotations())
                         .filter(this::isManagedAnnotation)
                         .collect(Collectors.toList()))
-                .map(this::toExecutionList)
+                .map((element, annotations) -> toExecutionList(element, annotations))
                 .collect(Collectors.toList());
     }
 

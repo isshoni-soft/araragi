@@ -3,8 +3,10 @@ package tv.isshoni.araragi.stream.model;
 import tv.isshoni.araragi.data.Pair;
 
 import java.util.Map;
-import java.util.function.*;
-import java.util.stream.Stream;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 public interface IPairStream<F, S> extends IAraragiStream<Pair<F, S>> {
 

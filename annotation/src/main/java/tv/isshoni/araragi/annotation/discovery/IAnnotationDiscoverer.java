@@ -5,11 +5,9 @@ import tv.isshoni.araragi.annotation.AttachTo;
 import tv.isshoni.araragi.annotation.Processor;
 import tv.isshoni.araragi.annotation.manager.IAnnotationManager;
 import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
-import tv.isshoni.araragi.reflect.ReflectionUtil;
 import tv.isshoni.araragi.stream.Streams;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Executable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -66,15 +64,10 @@ public interface IAnnotationDiscoverer {
             return;
         }
 
-        List<Executable> constructors = Streams.to(clazz.getAnnotation(Processor.class).value())
-                .map(c -> getAnnotationManager().discoverConstructor(c, false))
-                .collect(Collectors.toList());
-
-        if (constructors.isEmpty()) {
-            return;
-        }
-
-        Set<Class<? extends Annotation>> annotations = ReflectionUtil.getAllParameterAnnotationTypes(constructors);
+        Set<Class<? extends Annotation>> annotations = Streams.to(clazz.getAnnotation(Processor.class).value())
+                .map(getAnnotationManager()::getAllAnnotationsIn)
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
 
         if (annotations.isEmpty() || annotations.stream().allMatch(getAnnotationManager()::isManagedAnnotation)) {
             getAnnotationManager().discoverAnnotation(clazz);

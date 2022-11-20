@@ -1,7 +1,7 @@
 package tv.isshoni.araragi.annotation.manager;
 
-import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
 import tv.isshoni.araragi.annotation.functional.IExecutableInvoker;
+import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
 import tv.isshoni.araragi.annotation.processor.prepared.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.functional.QuadFunction;
@@ -13,6 +13,7 @@ import java.lang.reflect.Executable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface IAnnotationManager {
 
@@ -66,6 +67,8 @@ public interface IAnnotationManager {
 
     List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, List<Annotation>> annotations);
 
+    List<IPreparedAnnotationProcessor> toExecutionList(AnnotatedElement element, List<Annotation> annotations);
+
     List<Annotation> getManagedAnnotationsOn(AnnotatedElement element);
 
     List<Pair<Class<? extends Annotation>, Class<? extends Annotation>>> getConflictingAnnotations(Collection<Annotation> annotations);
@@ -81,4 +84,12 @@ public interface IAnnotationManager {
     Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext);
 
     int getTotalProcessors();
+
+    Set<Class<?>> getAllTypesForConstruction(Class<?> clazz);
+
+    Set<Class<? extends Annotation>> getAllAnnotationsForConstruction(Class<?> clazz);
+
+    Set<Class<? extends Annotation>> getAllAnnotationsIn(Class<?> clazz);
+
+    boolean canRegister(Class<? extends Annotation> clazz);
 }
