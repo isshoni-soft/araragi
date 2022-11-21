@@ -2,16 +2,17 @@ package tv.isshoni.araragi.annotation.manager;
 
 import tv.isshoni.araragi.annotation.AttachTo;
 import tv.isshoni.araragi.annotation.DefaultConstructor;
+import tv.isshoni.araragi.annotation.Depends;
 import tv.isshoni.araragi.annotation.Processor;
-import tv.isshoni.araragi.annotation.processor.prepared.PreparedAnnotationProcessor;
-import tv.isshoni.araragi.annotation.processor.prepared.PreparedParameterSupplier;
-import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
 import tv.isshoni.araragi.annotation.functional.IExecutableInvoker;
+import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
 import tv.isshoni.araragi.annotation.processor.IParameterSupplier;
 import tv.isshoni.araragi.annotation.processor.prepared.IPreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.processor.prepared.IPreparedParameterSupplier;
-import tv.isshoni.araragi.data.collection.map.TypeMap;
+import tv.isshoni.araragi.annotation.processor.prepared.PreparedAnnotationProcessor;
+import tv.isshoni.araragi.annotation.processor.prepared.PreparedParameterSupplier;
 import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.data.collection.map.TypeMap;
 import tv.isshoni.araragi.functional.QuadFunction;
 import tv.isshoni.araragi.reflect.ReflectionUtil;
 import tv.isshoni.araragi.stream.PairStream;
@@ -391,6 +392,11 @@ public class AnnotationManager implements IAnnotationManager {
         Streams.to(clazz.getAnnotations())
                 .map(Annotation::annotationType)
                 .forEach(result::add);
+
+        if (clazz.isAnnotationPresent(Depends.class)) {
+            Streams.to(clazz.getAnnotation(Depends.class).value())
+                    .forEach(result::add);
+        }
 
         Streams.to(clazz.getDeclaredMethods())
                 .map(AccessibleObject::getAnnotations)

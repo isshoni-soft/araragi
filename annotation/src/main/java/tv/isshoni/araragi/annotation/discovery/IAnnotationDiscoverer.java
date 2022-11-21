@@ -2,6 +2,7 @@ package tv.isshoni.araragi.annotation.discovery;
 
 import org.reflections8.Reflections;
 import tv.isshoni.araragi.annotation.AttachTo;
+import tv.isshoni.araragi.annotation.Depends;
 import tv.isshoni.araragi.annotation.Processor;
 import tv.isshoni.araragi.annotation.manager.IAnnotationManager;
 import tv.isshoni.araragi.annotation.processor.IAnnotationProcessor;
@@ -68,6 +69,10 @@ public interface IAnnotationDiscoverer {
                 .map(getAnnotationManager()::getAllAnnotationsIn)
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
+
+        if (clazz.isAnnotationPresent(Depends.class)) {
+            annotations.addAll(getAnnotationManager().getAllAnnotationsIn(clazz));
+        }
 
         if (annotations.isEmpty() || annotations.stream().allMatch(getAnnotationManager()::isManagedAnnotation)) {
             getAnnotationManager().discoverAnnotation(clazz);
