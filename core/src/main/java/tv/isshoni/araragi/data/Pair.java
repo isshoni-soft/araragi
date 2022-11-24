@@ -1,8 +1,5 @@
 package tv.isshoni.araragi.data;
 
-import tv.isshoni.araragi.stream.Streams;
-
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
@@ -10,6 +7,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class Pair<F, S> {
+
+    public static <F, S> Pair<F, S> of(F first, S second) {
+        return new Pair<>(first, second);
+    }
 
     public static <F extends Comparable<F>, S> Comparator<Pair<F, S>> compareFirst() {
         return Comparator.comparing(o -> o.first);
