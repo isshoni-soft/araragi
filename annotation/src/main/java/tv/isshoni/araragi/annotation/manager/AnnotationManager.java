@@ -13,6 +13,7 @@ import tv.isshoni.araragi.annotation.processor.prepared.PreparedAnnotationProces
 import tv.isshoni.araragi.annotation.processor.prepared.PreparedParameterSupplier;
 import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.data.collection.map.TypeMap;
+import tv.isshoni.araragi.exception.Exceptions;
 import tv.isshoni.araragi.functional.QuadFunction;
 import tv.isshoni.araragi.reflect.ReflectionUtil;
 import tv.isshoni.araragi.stream.PairStream;
@@ -163,7 +164,7 @@ public class AnnotationManager implements IAnnotationManager {
         try {
             return (R) this.executableInvokers.get(executable.getClass()).invoke(executable, target, runtimeContext);
         } catch (InvocationTargetException e) {
-            throw e.getCause();
+            throw Exceptions.rootCause(e);
         }
     }
 
