@@ -278,12 +278,12 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, List<Annotation>> annotations) {
+    public List<IPreparedAnnotationProcessor> toExecutionList(Pair<AnnotatedElement, Collection<Annotation>> annotations) {
         return toExecutionList(annotations.getFirst(), annotations.getSecond());
     }
 
     @Override
-    public List<IPreparedAnnotationProcessor> toExecutionList(AnnotatedElement element, List<Annotation> annotations) {
+    public List<IPreparedAnnotationProcessor> toExecutionList(AnnotatedElement element, Collection<Annotation> annotations) {
         return convertCollectionToProcessorStream(annotations)
                 .map((a, p) -> this.prepare(a, element, p))
                 .sorted()
