@@ -12,6 +12,7 @@ import tv.isshoni.araragi.annotation.processor.prepared.IPreparedParameterSuppli
 import tv.isshoni.araragi.annotation.processor.prepared.PreparedAnnotationProcessor;
 import tv.isshoni.araragi.annotation.processor.prepared.PreparedParameterSupplier;
 import tv.isshoni.araragi.data.Pair;
+import tv.isshoni.araragi.data.collection.map.BucketMap;
 import tv.isshoni.araragi.data.collection.map.TypeMap;
 import tv.isshoni.araragi.exception.Exceptions;
 import tv.isshoni.araragi.functional.QuadFunction;
@@ -37,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -180,12 +182,58 @@ public class AnnotationManager implements IAnnotationManager {
         if (Objects.isNull(parameters) || parameters.length == 0) {
             constructor = (Constructor<R>) discoverConstructor(clazz);
         } else {
-            // TODO: Find constructor that matches parameters supplied.
-            // TODO: First; strip out parameters with provided annotations, they'll be autowired, but are not considered 'real'
-            // TODO: Second; take remaining parameters & convert them to type, then compare types with current parameter types
-            // TODO: Third; if the second step does not reduce available possible constructors to 1, then select the constructor
-            // TODO: that's parameter order matches the order our parameters were received in.
-            constructor = null;
+            List<Class<?>> parameterTypes = Streams.to(parameters)
+                    .sequential()
+                    .map(Object::getClass)
+                    .collect(Collectors.toList());
+
+            List<Constructor<?>> candidates = Streams.to(clazz.getConstructors())
+                    .filter(c -> {
+                        Set<Parameter> supplied = this.getManagedParameters(c);
+
+                        if (parameters.length != (c.getParameterCount() - supplied.size())) {
+                            return false;
+                        }
+
+                        List<Parameter> constructorParameters = Streams.to(c.getParameters())
+                                .filterInverted(supplied::contains)
+                                .toList();
+
+                        List<Class<?>> constructorParameterTypes = Streams.to(constructorParameters)
+                                .map(Parameter::getType)
+                                .collect(Collectors.toList());
+
+                        constructorParameterTypes.removeAll(parameterTypes);
+
+                        return constructorParameterTypes.isEmpty();
+                    })
+                    .toList();
+
+            if (candidates.size() > 1) {
+                candidates = Streams.to(candidates)
+                        .filter(c -> {
+                            Set<Parameter> supplied = this.getManagedParameters(c);
+
+                            List<Class<?>> constructorParameters = Streams.to(c.getParameters())
+                                    .sequential()
+                                    .filterInverted(supplied::contains)
+                                    .map(Parameter::getType)
+                                    .collect(Collectors.toList());
+
+                            return constructorParameters.equals(parameterTypes);
+                        })
+                        .collect(Collectors.toList());
+
+                if (candidates.size() > 1) {
+                    throw new IllegalStateException("Cannot infer constructor for parameter types: " + parameterTypes);
+                }
+            }
+
+            constructor = (Constructor<R>) candidates.stream().findFirst().orElse(null);
+        }
+
+        if (constructor == null) {
+            throw new IllegalStateException("Cannot find constructor for: " + clazz);
         }
 
         return execute(constructor, null, runtimeContext, parameters);
@@ -359,16 +407,65 @@ public class AnnotationManager implements IAnnotationManager {
 
     @Override
     public Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext, Object... parameters) {
-        Object[] suppliedParameters = Streams.to(annotatedElementToExecutionList(executable.getParameters()))
+        List<Pair<Object, Annotation>> suppliedParameters = Streams.to(annotatedElementToExecutionList(executable.getParameters()))
                 .map(l -> Streams.to(l)
                         .filter(p -> IPreparedParameterSupplier.class.isAssignableFrom(p.getClass()))
                         .cast(IPreparedParameterSupplier.class)
-                        .collapse((p, o) -> p.supplyParameter(p.getAnnotation(), o, (Parameter) p.getElement(), new HashMap<>(runtimeContext))))
-                .toArray();
+                        .<Pair<Object, Annotation>>collapse((p, pair) ->
+                                Pair.of(p.supplyParameter(p.getAnnotation(), (pair == null) ? null : pair.getFirst(),
+                                        (Parameter) p.getElement(), new HashMap<>(runtimeContext)), p.getAnnotation())))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-        // TODO: Mix supplied parameters with provided parameters in an order that matches executable.
+        BucketMap<Annotation, Object> suppliedByAnnotation = new BucketMap<>();
+        Streams.to(suppliedParameters, Streams.collectionToPairStream()).forEach((o, a) ->
+                suppliedByAnnotation.add(a, o));
 
-        return suppliedParameters;
+        List<Object> givenParameters = new LinkedList<>(List.of(parameters));
+        Parameter[] params = executable.getParameters();
+        Object[] result = new Object[suppliedParameters.size() + parameters.length];
+
+        for (int x = 0; x < executable.getParameterCount(); x++) {
+            Parameter current = params[x];
+            Object stuff = null;
+
+            if (hasManagedAnnotation(current)) {
+                List<Annotation> annotations = getManagedAnnotationsOn(current);
+
+                if (annotations.size() > 1) {
+                    throw new IllegalStateException("Cannot have more than 1 supplied parameter annotation!");
+                }
+
+                Annotation annotation = annotations.stream().findFirst().get();
+
+                Optional<List<Object>> possible = Optional.ofNullable(suppliedByAnnotation.get(annotation));
+
+                stuff = possible.flatMap(l -> Streams.to(l)
+                                .filter(o -> current.getType().isAssignableFrom(o.getClass()))
+                                .findFirst())
+                        .orElse(null);
+            } else {
+                Object given = givenParameters.get(0);
+
+                if (current.getType().isAssignableFrom(given.getClass())) {
+                    stuff = given;
+                    givenParameters.remove(0);
+                } else {
+                    for (int y = 0; y < givenParameters.size(); y++) {
+                        Object cur = givenParameters.get(x);
+
+                        if (current.getType().isAssignableFrom(cur.getClass())) {
+                            stuff = cur;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            result[x] = stuff;
+        }
+
+        return result;
     }
 
     @Override
@@ -441,6 +538,12 @@ public class AnnotationManager implements IAnnotationManager {
     @Override
     public boolean canRegister(Class<? extends Annotation> clazz) {
         return clazz.isAnnotationPresent(Processor.class);
+    }
+
+    protected Set<Parameter> getManagedParameters(Executable executable) {
+        return Streams.to(executable.getParameters())
+                .filter(this::hasManagedAnnotation)
+                .collect(Collectors.toSet());
     }
 
     protected List<List<IPreparedAnnotationProcessor>> annotatedElementToExecutionList(AnnotatedElement... elements) {
