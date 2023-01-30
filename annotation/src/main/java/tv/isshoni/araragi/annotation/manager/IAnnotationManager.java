@@ -41,11 +41,13 @@ public interface IAnnotationManager {
 
     <T extends Executable> void register(Class<T> executable, IExecutableInvoker<T> invoker);
 
-    <T extends Executable, R> R execute(T executable, Object target, Map<String, Object> runtimeContext) throws Throwable;
+    <T extends Executable, R> R execute(T executable, Object target, Map<String, Object> runtimeContext, Object... parameters) throws Throwable;
 
-    <T extends Executable, R> R execute(T executable, Object target) throws Throwable;
+    <T extends Executable, R> R execute(T executable, Object target, Object... parameters) throws Throwable;
 
-    <R> R construct(Class<R> clazz) throws Throwable;
+    <R> R construct(Class<R> clazz, Object... parameters) throws Throwable;
+
+    <R> R construct(Class<R> clazz, Map<String, Object> runtimeContext, Object... parameters) throws Throwable;
 
     void execute(Class<?> clazz);
 
@@ -81,7 +83,7 @@ public interface IAnnotationManager {
 
     <A extends Annotation> boolean hasConflictingAnnotations(Collection<A> annotations);
 
-    Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext);
+    Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext, Object... parameters);
 
     int getTotalProcessors();
 

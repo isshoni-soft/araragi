@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -57,8 +58,8 @@ public class AnnotationManager implements IAnnotationManager {
         register(IAnnotationProcessor.class, PreparedAnnotationProcessor::new);
         register(IParameterSupplier.class, PreparedParameterSupplier::new);
 
-        register(Method.class, (m, o, ctx) -> m.invoke(o, this.prepareExecutable(m, ctx)));
-        register(Constructor.class, (c, o, ctx) -> c.newInstance(this.prepareExecutable(c, ctx)));
+        register(Method.class, (m, o, ctx, p) -> m.invoke(o, this.prepareExecutable(m, ctx, p)));
+        register(Constructor.class, (c, o, ctx, p) -> c.newInstance(this.prepareExecutable(c, ctx, p)));
     }
 
     @Override
@@ -160,22 +161,39 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public <T extends Executable, R> R execute(T executable, Object target, Map<String, Object> runtimeContext) throws Throwable {
+    public <T extends Executable, R> R execute(T executable, Object target, Map<String, Object> runtimeContext, Object... parameters) throws Throwable {
         try {
-            return (R) this.executableInvokers.get(executable.getClass()).invoke(executable, target, runtimeContext);
+            return (R) this.executableInvokers.get(executable.getClass()).invoke(executable, target, runtimeContext, parameters);
         } catch (InvocationTargetException e) {
             throw Exceptions.rootCause(e);
         }
     }
 
     @Override
-    public <T extends Executable, R> R execute(T executable, Object target) throws Throwable {
-        return execute(executable, target, new HashMap<>());
+    public <T extends Executable, R> R execute(T executable, Object target, Object... parameters) throws Throwable {
+        return execute(executable, target, new HashMap<>(), parameters);
     }
 
     @Override
-    public <R> R construct(Class<R> clazz) throws Throwable {
-        return execute(discoverConstructor(clazz), null);
+    public <R> R construct(Class<R> clazz, Map<String, Object> runtimeContext, Object... parameters) throws Throwable {
+        Constructor<R> constructor;
+        if (Objects.isNull(parameters) || parameters.length == 0) {
+            constructor = (Constructor<R>) discoverConstructor(clazz);
+        } else {
+            // TODO: Find constructor that matches parameters supplied.
+            // TODO: First; strip out parameters with provided annotations, they'll be autowired, but are not considered 'real'
+            // TODO: Second; take remaining parameters & convert them to type, then compare types with current parameter types
+            // TODO: Third; if the second step does not reduce available possible constructors to 1, then select the constructor
+            // TODO: that's parameter order matches the order our parameters were received in.
+            constructor = null;
+        }
+
+        return execute(constructor, null, runtimeContext, parameters);
+    }
+
+    @Override
+    public <R> R construct(Class<R> clazz, Object... parameters) throws Throwable {
+        return construct(clazz, new HashMap<>(), parameters);
     }
 
     @Override
@@ -340,13 +358,17 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext) {
-        return Streams.to(annotatedElementToExecutionList(executable.getParameters()))
+    public Object[] prepareExecutable(Executable executable, Map<String, Object> runtimeContext, Object... parameters) {
+        Object[] suppliedParameters = Streams.to(annotatedElementToExecutionList(executable.getParameters()))
                 .map(l -> Streams.to(l)
                         .filter(p -> IPreparedParameterSupplier.class.isAssignableFrom(p.getClass()))
                         .cast(IPreparedParameterSupplier.class)
                         .collapse((p, o) -> p.supplyParameter(p.getAnnotation(), o, (Parameter) p.getElement(), new HashMap<>(runtimeContext))))
                 .toArray();
+
+        // TODO: Mix supplied parameters with provided parameters in an order that matches executable.
+
+        return suppliedParameters;
     }
 
     @Override

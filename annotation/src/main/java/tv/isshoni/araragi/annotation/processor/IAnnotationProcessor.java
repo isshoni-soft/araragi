@@ -1,11 +1,13 @@
 package tv.isshoni.araragi.annotation.processor;
 
+import tv.isshoni.araragi.annotation.IncompatibleWith;
 import tv.isshoni.araragi.annotation.processor.weight.WeightCalculator;
 import tv.isshoni.araragi.annotation.manager.IAnnotationManager;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +38,12 @@ public interface IAnnotationProcessor<A extends Annotation> {
     }
 
     default List<Class<? extends Annotation>> getIncompatibleWith(A annotation) {
-        return new LinkedList<>();
+        List<Class<? extends Annotation>> incompatible = new LinkedList<>();
+
+        if (annotation.annotationType().isAnnotationPresent(IncompatibleWith.class)) {
+            incompatible.addAll(Arrays.asList(annotation.annotationType().getAnnotation(IncompatibleWith.class).value()));
+        }
+
+        return incompatible;
     }
 }
