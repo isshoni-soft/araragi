@@ -1,7 +1,7 @@
 description = 'annotation'
 
 dependencies {
-    implementation 'net.oneandone.reflections8:reflections8:0.11.7'
+    api 'net.oneandone.reflections8:reflections8:0.11.7'
 
     implementation project(':core')
 
