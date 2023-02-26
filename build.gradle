@@ -47,6 +47,10 @@ subprojects {
         mavenCentral()
     }
 
+    dependencies {
+        compileOnly "javax.xml.bind:jaxb-api:$jaxb_version"
+    }
+
     group = 'tv.isshoni.araragi'
     version = "$araragi_version"
 
