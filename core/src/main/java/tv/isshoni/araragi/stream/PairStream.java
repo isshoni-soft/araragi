@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -129,6 +130,16 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     @Override
     public void addToOrdered(Map<F, S> map) {
         this.forEachOrdered(map::put);
+    }
+
+    @Override
+    public boolean matches(Stream<Pair<F, S>> stream, BiFunction<Pair<F, S>, Pair<F, S>, Boolean> matcher) {
+        return this.stream.matches(stream, matcher);
+    }
+
+    @Override
+    public boolean matches(List<Pair<F, S>> other, BiFunction<Pair<F, S>, Pair<F, S>, Boolean> matcher) {
+        return this.stream.matches(other, matcher);
     }
 
     @Override

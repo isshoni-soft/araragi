@@ -12,6 +12,10 @@ public class MixedConstructed {
         this.other2 = other2;
     }
 
+    public MixedConstructed(@TestAnnotation("value!") String value, @Second String other, int other2) {
+        this(value, other, Integer.toString(other2));
+    }
+
     public String getValue() {
         return this.value;
     }

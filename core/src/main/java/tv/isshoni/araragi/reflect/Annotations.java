@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * This class is incomplete!
+ */
 @Deprecated // TODO: Incomplete class
 public class Annotations {
 

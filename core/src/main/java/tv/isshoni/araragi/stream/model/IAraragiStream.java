@@ -3,6 +3,7 @@ package tv.isshoni.araragi.stream.model;
 import tv.isshoni.araragi.data.Pair;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -11,6 +12,10 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public interface IAraragiStream<T> extends Stream<T> {
+
+    boolean matches(Stream<T> stream, BiFunction<T, T, Boolean> matcher);
+
+    boolean matches(List<T> other, BiFunction<T, T, Boolean> matcher);
 
     IAraragiStream<T> filterInverted(Predicate<? super T> predicate);
 

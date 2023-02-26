@@ -16,6 +16,7 @@ import tv.isshoni.araragi.data.collection.map.BucketMap;
 import tv.isshoni.araragi.data.collection.map.TypeMap;
 import tv.isshoni.araragi.exception.Exceptions;
 import tv.isshoni.araragi.functional.QuadFunction;
+import tv.isshoni.araragi.reflect.Primitives;
 import tv.isshoni.araragi.reflect.ReflectionUtil;
 import tv.isshoni.araragi.stream.PairStream;
 import tv.isshoni.araragi.stream.Streams;
@@ -179,14 +180,14 @@ public class AnnotationManager implements IAnnotationManager {
     @Override
     public <R> R construct(Class<R> clazz, Map<String, Object> runtimeContext, Object... parameters) throws Throwable {
         Constructor<R> constructor;
+        List<Class<?>> parameterTypes = Streams.to(parameters)
+                .sequential()
+                .map(Object::getClass)
+                .collect(Collectors.toList());
+
         if (Objects.isNull(parameters) || parameters.length == 0) {
             constructor = (Constructor<R>) discoverConstructor(clazz);
         } else {
-            List<Class<?>> parameterTypes = Streams.to(parameters)
-                    .sequential()
-                    .map(Object::getClass)
-                    .collect(Collectors.toList());
-
             List<Constructor<?>> candidates = Streams.to(clazz.getConstructors())
                     .filter(c -> {
                         Set<Parameter> supplied = this.getManagedParameters(c);
@@ -201,39 +202,29 @@ public class AnnotationManager implements IAnnotationManager {
 
                         List<Class<?>> constructorParameterTypes = Streams.to(constructorParameters)
                                 .map(Parameter::getType)
+                                .map(p -> {
+                                    if (Primitives.isPrimitive(p)) {
+                                        return Primitives.convert(p);
+                                    }
+
+                                    return p;
+                                })
                                 .collect(Collectors.toList());
 
-                        constructorParameterTypes.removeAll(parameterTypes);
-
-                        return constructorParameterTypes.isEmpty();
+                        return Streams.to(constructorParameterTypes)
+                                .matches(parameterTypes, Class::isAssignableFrom);
                     })
                     .toList();
 
             if (candidates.size() > 1) {
-                candidates = Streams.to(candidates)
-                        .filter(c -> {
-                            Set<Parameter> supplied = this.getManagedParameters(c);
-
-                            List<Class<?>> constructorParameters = Streams.to(c.getParameters())
-                                    .sequential()
-                                    .filterInverted(supplied::contains)
-                                    .map(Parameter::getType)
-                                    .collect(Collectors.toList());
-
-                            return constructorParameters.equals(parameterTypes);
-                        })
-                        .collect(Collectors.toList());
-
-                if (candidates.size() > 1) {
-                    throw new IllegalStateException("Cannot infer constructor for parameter types: " + parameterTypes);
-                }
+                throw new IllegalStateException("Cannot infer constructor for parameter types: " + parameterTypes);
             }
 
             constructor = (Constructor<R>) candidates.stream().findFirst().orElse(null);
         }
 
         if (constructor == null) {
-            throw new IllegalStateException("Cannot find constructor for: " + clazz);
+            throw new IllegalStateException("Cannot find constructor for: " + clazz + "(" + parameterTypes + ")");
         }
 
         return execute(constructor, null, runtimeContext, parameters);
@@ -441,20 +432,20 @@ public class AnnotationManager implements IAnnotationManager {
                 Optional<List<Object>> possible = Optional.ofNullable(suppliedByAnnotation.get(annotation));
 
                 stuff = possible.flatMap(l -> Streams.to(l)
-                                .filter(o -> current.getType().isAssignableFrom(o.getClass()))
+                                .filter(o -> Primitives.convert(current.getType()).isAssignableFrom(o.getClass()))
                                 .findFirst())
                         .orElse(null);
             } else {
                 Object given = givenParameters.get(0);
 
-                if (current.getType().isAssignableFrom(given.getClass())) {
+                if (Primitives.convert(current.getType()).isAssignableFrom(given.getClass())) {
                     stuff = given;
                     givenParameters.remove(0);
                 } else {
                     for (int y = 0; y < givenParameters.size(); y++) {
                         Object cur = givenParameters.get(x);
 
-                        if (current.getType().isAssignableFrom(cur.getClass())) {
+                        if (Primitives.convert(current.getType()).isAssignableFrom(cur.getClass())) {
                             stuff = cur;
                             break;
                         }

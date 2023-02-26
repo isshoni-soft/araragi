@@ -43,6 +43,27 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     }
 
     @Override
+    public boolean matches(Stream<T> stream, BiFunction<T, T, Boolean> matcher) {
+        return matches(stream.toList(), matcher);
+    }
+
+    @Override
+    public boolean matches(List<T> other, BiFunction<T, T, Boolean> matcher) {
+        List<T> ours = this.stream.toList();
+
+        for (int x = 0; x < ours.size(); x++) {
+            T first = ours.get(x);
+            T second = other.get(x);
+
+            if (!matcher.apply(first, second)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public AraragiStream<T> filterInverted(Predicate<? super T> predicate) {
         return Streams.to(this.stream.filter(v -> !predicate.test(v)));
     }

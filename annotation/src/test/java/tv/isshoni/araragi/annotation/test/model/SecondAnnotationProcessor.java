@@ -15,6 +15,6 @@ public class SecondAnnotationProcessor implements IParameterSupplier<Second, Str
 
     @Override
     public String supply(Second annotation, String previous, Parameter parameter, Map<String, Object> runtimeContext) {
-        return runtimeContext.getOrDefault(annotation.value(), "default").toString();
+        return runtimeContext.getOrDefault(annotation.value(), "DEFAULT").toString();
     }
 }

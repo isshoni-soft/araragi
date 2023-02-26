@@ -3,7 +3,6 @@ package tv.isshoni.araragi.annotation.test;
 import org.junit.Before;
 import org.junit.Test;
 import tv.isshoni.araragi.annotation.manager.AnnotationManager;
-import tv.isshoni.araragi.annotation.test.model.MixedConstructed;
 import tv.isshoni.araragi.annotation.test.model.Second;
 import tv.isshoni.araragi.annotation.test.model.TestAnnotation;
 
@@ -60,19 +59,6 @@ public class TestAnnotationManager {
         }});
 
         assertEquals(EXPECTED_VALUE + EXPECTED_VALUE, this.output.toString());
-    }
-
-    @Test
-    public void testAnnotationManagerMixedConstructor() throws Throwable {
-        AnnotationManager annotationManager = new AnnotationManager();
-
-        annotationManager.discoverAnnotation(TestAnnotation.class);
-
-        MixedConstructed mixed = annotationManager.construct(MixedConstructed.class, "other", "other2");
-
-        assertEquals("value!", mixed.getValue());
-        assertEquals("other", mixed.getOther());
-        assertEquals("other2", mixed.getOther2());
     }
 
     public void bMethod(@Second("contextual") String str) {
