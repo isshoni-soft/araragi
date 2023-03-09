@@ -1,11 +1,12 @@
 package tv.isshoni.test.araragi.logging;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import tv.isshoni.araragi.logging.AraragiLogger;
-import tv.isshoni.araragi.logging.format.SimpleFormatter;
+import tv.isshoni.araragi.logging.format.SimpleLoggerFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
 
 import java.io.ByteArrayOutputStream;
@@ -14,14 +15,12 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({IAraragiLogger.class, AraragiLogger.class, ZonedDateTime.class, Instant.class, SimpleFormatter.class})
+@PrepareForTest({IAraragiLogger.class, AraragiLogger.class, ZonedDateTime.class, Instant.class, SimpleLoggerFormatter.class})
 public class TestSimpleFormatter {
 
     private ZonedDateTime time;
@@ -67,7 +66,7 @@ public class TestSimpleFormatter {
             put("action", () -> "gambling");
         }});
 
-        assertEquals("[" + SimpleFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Good morning Johnathan, how was your gambling?", this.output.toString().trim());
+        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Good morning Johnathan, how was your gambling?", this.output.toString().trim());
     }
 
     @Test
@@ -77,20 +76,20 @@ public class TestSimpleFormatter {
             put("pronoun", () -> "${formal_pronoun}");
         }});
 
-        assertEquals("[" + SimpleFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Good afternoon Sir.", this.output.toString().trim());
+        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Good afternoon Sir.", this.output.toString().trim());
     }
 
     @Test
     public void testFunctionMessageFormatting() {
         this.logger.info("Testing: ${dashes%50}");
 
-        assertEquals("[" + SimpleFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: --------------------------------------------------", this.output.toString().trim());
+        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: --------------------------------------------------", this.output.toString().trim());
     }
 
     @Test
     public void testNowSupplier() {
         this.logger.info("Testing: ${now}");
 
-        assertEquals("[" + SimpleFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: " + Instant.now().toString(), this.output.toString().trim());
+        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: " + Instant.now().toString(), this.output.toString().trim());
     }
 }

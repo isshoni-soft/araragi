@@ -9,10 +9,10 @@ public class ConsoleDriver implements ILoggerDriver {
     @Override
     public void process(IMessageContext context) {
         if (context.getLevel().equals(Level.ERROR)) {
-            System.err.println(context.getMessage());
+            System.err.println(context.build());
             System.err.flush();
         } else {
-            System.out.println(context.getMessage());
+            System.out.println(context.build());
             System.out.flush();
         }
     }

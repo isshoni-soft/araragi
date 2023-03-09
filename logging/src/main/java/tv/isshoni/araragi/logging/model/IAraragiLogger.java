@@ -1,6 +1,6 @@
 package tv.isshoni.araragi.logging.model;
 
-import tv.isshoni.araragi.logging.model.format.IFormatter;
+import tv.isshoni.araragi.logging.model.format.ILoggerFormatter;
 import tv.isshoni.araragi.logging.model.level.ILevel;
 import tv.isshoni.araragi.logging.model.level.Level;
 import tv.isshoni.araragi.logging.model.format.message.IMessageContext;
@@ -18,7 +18,7 @@ public interface IAraragiLogger {
 
     void setLevel(ILevel level);
 
-    void setFormatter(IFormatter formatter);
+    void setFormatter(ILoggerFormatter formatter);
 
     void setMessageContextFactory(IMessageContextFactory<IMessageContext> context);
 
@@ -78,7 +78,7 @@ public interface IAraragiLogger {
 
     String getName();
 
-    IFormatter getFormatter();
+    ILoggerFormatter getFormatter();
 
     List<ILoggerDriver> getDrivers();
 }

@@ -1,10 +1,10 @@
 package tv.isshoni.araragi.logging;
 
 import tv.isshoni.araragi.logging.driver.ConsoleDriver;
-import tv.isshoni.araragi.logging.format.SimpleFormatter;
+import tv.isshoni.araragi.logging.format.SimpleLoggerFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
 import tv.isshoni.araragi.logging.model.ILoggerDriver;
-import tv.isshoni.araragi.logging.model.format.IFormatter;
+import tv.isshoni.araragi.logging.model.format.ILoggerFormatter;
 import tv.isshoni.araragi.logging.model.level.ILevel;
 import tv.isshoni.araragi.logging.model.level.Level;
 import tv.isshoni.araragi.logging.model.format.message.IMessageContext;
@@ -38,13 +38,13 @@ public class AraragiLogger implements IAraragiLogger {
 
     private IMessageContextFactory<IMessageContext> contextFactory;
 
-    private IFormatter formatter;
+    private ILoggerFormatter formatter;
 
     private ILevel level;
 
     public AraragiLogger(String name) {
         this.name = name;
-        this.formatter = new SimpleFormatter();
+        this.formatter = new SimpleLoggerFormatter();
         this.drivers = new LinkedList<>();
         this.level = Level.INFO;
         this.contextFactory = new SimpleMessageContextFactory();
@@ -61,7 +61,7 @@ public class AraragiLogger implements IAraragiLogger {
     }
 
     @Override
-    public void setFormatter(IFormatter formatter) {
+    public void setFormatter(ILoggerFormatter formatter) {
         this.formatter = formatter;
     }
 
@@ -86,7 +86,7 @@ public class AraragiLogger implements IAraragiLogger {
     }
 
     @Override
-    public IFormatter getFormatter() {
+    public ILoggerFormatter getFormatter() {
         return this.formatter;
     }
 

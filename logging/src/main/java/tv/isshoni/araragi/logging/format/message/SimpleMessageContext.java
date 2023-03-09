@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 public class SimpleMessageContext implements IMessageContext {
 
+    private String prefix;
     private String message;
 
     private final IAraragiLogger logger;
@@ -26,11 +27,22 @@ public class SimpleMessageContext implements IMessageContext {
         this.level = level;
         this.time = time;
         this.data = data;
+        this.prefix = "";
+    }
+
+    @Override
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
     }
 
     @Override
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String getPrefix() {
+        return this.prefix;
     }
 
     @Override

@@ -6,15 +6,9 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public interface IFormatter {
+public interface ILoggerFormatter {
 
     void format(IMessageContext context);
-
-    String processSupplier(String key, IMessageContext context);
-
-    String processFunction(String key, IMessageContext context);
-
-    void formatMessage(IMessageContext context);
 
     void registerFunction(String key, BiFunction<String[], IMessageContext, String> consumer);
 
