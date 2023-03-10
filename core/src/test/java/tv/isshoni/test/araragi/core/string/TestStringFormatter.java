@@ -14,4 +14,12 @@ public class TestStringFormatter {
 
         assertEquals("value!", formatter.format("${test}"));
     }
+
+    @Test
+    public void testCustomDiscriminator() {
+        StringFormatter formatter = new StringFormatter("{{", "}}");
+        formatter.registerSupplier("test", () -> "value!");
+
+        assertEquals("value!", formatter.format("{{test}}"));
+    }
 }

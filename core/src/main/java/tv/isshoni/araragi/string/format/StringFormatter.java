@@ -14,10 +14,21 @@ import java.util.function.Supplier;
 
 public class StringFormatter {
 
-
     private final Map<String, BiFunction<String[], String, String>> functions = new ConcurrentHashMap<>();
 
     private final Map<String, Supplier<String>> suppliers = new ConcurrentHashMap<>();
+
+    private final String discriminatorPrefix;
+    private final String discriminatorSuffix;
+
+    public StringFormatter(String discriminatorPrefix, String discriminatorSuffix) {
+        this.discriminatorPrefix = discriminatorPrefix;
+        this.discriminatorSuffix = discriminatorSuffix;
+    }
+
+    public StringFormatter() {
+        this("${", "}");
+    }
 
     public void registerFunction(String key, BiFunction<String[], String, String> function) {
         this.functions.put(key, function);
@@ -31,26 +42,47 @@ public class StringFormatter {
         this.suppliers.put(key, supplier);
     }
 
-    // TODO: potential improvements
-    // TODO:  - allow for discriminator customization.
     public List<StringToken> tokenize(String message) { // list order is SUPER important.
         List<StringToken> result = new LinkedList<>();
         int first = -1;
         int second = -1;
 
         for (int x = 0; x < message.length(); x++) {
-            char current = message.charAt(x);
+            char current;
+            int temp = -1;
+            for (int y = 0; y < this.discriminatorPrefix.length() && first == -1; y++, x++) {
+                current = message.charAt(x);
 
-            if (current == '$' && x < message.length() - 1) {
-                if (message.charAt(x + 1) == '{') {
-                    first = x;
+                if (current != this.discriminatorPrefix.charAt(y)) {
+                    break;
                 }
-            } else if (current == '}' && first != -1) {
-                second = x;
+
+                if (this.discriminatorPrefix.length() == 1) {
+                    first = x;
+                } else if (y == 0) {
+                    temp = x;
+                } else if (y == this.discriminatorPrefix.length() - 1) {
+                    first = temp;
+                }
+            }
+
+            for (int y = 0; y < this.discriminatorSuffix.length() && first != -1; y++, x++) {
+                current = message.charAt(x);
+
+                if (current != this.discriminatorSuffix.charAt(y)) {
+                    break;
+                }
+
+                if (this.discriminatorSuffix.length() == 1) {
+                    second = x;
+                } else if (y == this.discriminatorSuffix.length() - 1) {
+                    second = x;
+                }
             }
 
             if (first != -1 && second != -1) {
-                String key = message.substring(first + 2, second);
+                String key = message.substring(first + this.discriminatorPrefix.length(),
+                        second - (this.discriminatorSuffix.length() - 1));
 
                 String replacement = Optional.ofNullable(processSupplier(key))
                         .or(() -> Optional.ofNullable(processFunction(key, message)))

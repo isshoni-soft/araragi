@@ -19,7 +19,7 @@ public class Constant<E> {
     }
 
     public void ifPresent(Consumer<E> consumer) {
-        if (nonNull()) {
+        if (isPresent()) {
             consumer.accept(this.instance);
         }
     }
@@ -28,12 +28,8 @@ public class Constant<E> {
         return this.locked;
     }
 
-    public boolean nonNull() {
+    public boolean isPresent() {
         return this.instance != null;
-    }
-
-    public boolean isNull() {
-        return this.instance == null;
     }
 
     public void set(E value) {
