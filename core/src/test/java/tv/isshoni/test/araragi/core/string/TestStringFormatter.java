@@ -1,7 +1,7 @@
 package tv.isshoni.test.araragi.core.string;
 
 import org.junit.Test;
-import tv.isshoni.araragi.string.StringFormatter;
+import tv.isshoni.araragi.string.format.StringFormatter;
 
 import static org.junit.Assert.assertEquals;
 

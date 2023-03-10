@@ -1,8 +1,10 @@
-package tv.isshoni.araragi.string;
+package tv.isshoni.araragi.string.format;
 
 import tv.isshoni.araragi.stream.Streams;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,6 +13,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class StringFormatter {
+
 
     private final Map<String, BiFunction<String[], String, String>> functions = new ConcurrentHashMap<>();
 
@@ -28,7 +31,10 @@ public class StringFormatter {
         this.suppliers.put(key, supplier);
     }
 
-    public String format(String message) {
+    // TODO: potential improvements
+    // TODO:  - allow for discriminator customization.
+    public List<StringToken> tokenize(String message) { // list order is SUPER important.
+        List<StringToken> result = new LinkedList<>();
         int first = -1;
         int second = -1;
 
@@ -46,16 +52,31 @@ public class StringFormatter {
             if (first != -1 && second != -1) {
                 String key = message.substring(first + 2, second);
 
-                final String temp = message;
+                String replacement = Optional.ofNullable(processSupplier(key))
+                        .or(() -> Optional.ofNullable(processFunction(key, message)))
+                        .orElse(key);
 
-                Optional<String> result = Optional.ofNullable(processSupplier(key))
-                        .or(() -> Optional.ofNullable(processFunction(key, temp)));
+                result.add(new StringToken(first, second, key, format(replacement)));
 
-                message = message.substring(0, first) + result.orElse(key) + message.substring(second + 1);
                 first = -1;
                 second = -1;
-                x = 0;
             }
+        }
+
+        return result;
+    }
+
+    public String format(String message) {
+        List<StringToken> tokens = tokenize(message);
+
+        int offset = 0;
+        for (StringToken token : tokens) {
+            String replacement = token.getReplacement();
+            int first = token.getStart() + offset;
+            int last = token.getFinish() + 1 + offset;
+
+            message = message.substring(0, first) + replacement + message.substring(last);
+            offset += token.getOffset();
         }
 
         return message;
