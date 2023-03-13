@@ -4,6 +4,7 @@ import tv.isshoni.araragi.data.collection.Lists;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,14 @@ public class BucketMap<K, V> implements Map<K, List<V>> {
     @Override
     public List<V> get(Object key) {
         return this.wrapped.get(key);
+    }
+
+    public List<V> getOrNew(Object key) {
+        if (!containsKey(key)) {
+            put((K) key, new LinkedList<>());
+        }
+
+        return get(key);
     }
 
     @Override

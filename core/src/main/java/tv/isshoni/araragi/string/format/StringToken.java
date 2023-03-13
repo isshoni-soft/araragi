@@ -39,14 +39,18 @@ public class StringToken {
         return this.key;
     }
 
-    // TODO - Implement these.
-//    @Override
-//    public int hashCode() {
-//        return super.hashCode();
-//    }
-//
-//    @Override
-//    public boolean equals(Object obj) {
-//        return super.equals(obj);
-//    }
+    @Override
+    public int hashCode() {
+        return this.start + this.finish + this.key.hashCode() + this.replacement.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof StringToken other)) {
+            return false;
+        }
+
+        return this.start == other.start && this.finish == other.finish
+                && this.key.equals(other.key) && this.replacement.equals(other.replacement);
+    }
 }
