@@ -6,6 +6,7 @@ import tv.isshoni.araragi.data.collection.map.token.TokenMap;
 import tv.isshoni.araragi.string.format.StringFormatter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class TestTokenMap {
 
@@ -23,6 +24,8 @@ public class TestTokenMap {
 
         assertEquals("data.", this.map.get("some key"));
         assertEquals("other data.", this.map.get("some generic key"));
+        assertNull(this.map.get("some key."));
+        assertNull(this.map.get("some generic key."));
     }
 
     @Test
@@ -33,5 +36,7 @@ public class TestTokenMap {
         assertEquals("data.", this.map.get("some keykeykey keykey special key"));
         assertEquals("other data.", this.map.get("some keykeykey keykey different key"));
         assertEquals("other data.", this.map.get("some special key different key"));
+        assertEquals("data.", this.map.get("some special key special key"));
+        assertNull(this.map.get("some special key special key."));
     }
 }
