@@ -189,30 +189,39 @@ public class TokenMap<V> implements Map<String, V> {
 
                 this.prefixShortcuts.add(prefix, new TokenMatcher(key, betweens.toArray(new String[0])));
             } else {
+                boolean newPerm = true;
+                int finish = firstFinish + 1;
+                List<String> betweens = new LinkedList<>();
+
+                for (int x = 1; x < tokens.size(); x++) {
+                    StringToken token = tokens.get(x);
+                    String between = key.substring(finish, token.getStart());
+                    betweens.add(between);
+
+                    finish = (token.getFinish() + 1);
+                }
+
+                if (finish != key.length()) {
+                    betweens.add(key.substring(finish));
+                }
+
                 for (TokenMatcher permutation : permutations) {
-                    int finish = firstFinish + 1;
-                    boolean newPerm = false;
-                    List<String> betweens = new LinkedList<>();
+                    if (permutation.getMatches().length != betweens.size()) {
+                        continue;
+                    }
 
-                    for (int x = 1; x < tokens.size(); x++) {
-                        StringToken token = tokens.get(x);
-                        String between = key.substring(finish, token.getStart());
-                        betweens.add(between);
-
-                        if (!between.equals(permutation.getMatches()[x])) {
+                    for (int x = 0; x < betweens.size(); x++) {
+                        if (permutation.getMatches()[x].equals(betweens.get(x))) {
+                            newPerm = false;
+                        } else {
                             newPerm = true;
+                            break;
                         }
-
-                        finish = (token.getFinish() + 1);
                     }
+                }
 
-                    if (finish != key.length()) {
-                        betweens.add(key.substring(finish));
-                    }
-
-                    if (newPerm) {
-                        this.prefixShortcuts.add(prefix, new TokenMatcher(key, betweens.toArray(new String[0])));
-                    }
+                if (newPerm) {
+                    this.prefixShortcuts.add(prefix, new TokenMatcher(key, betweens.toArray(new String[0])));
                 }
             }
         }
@@ -220,14 +229,3 @@ public class TokenMap<V> implements Map<String, V> {
         return this.data.put(key, value);
     }
 }
-
-// Assumptions: CANNOT assume that spaces are always present, might get a key like:
-// -> /some/{path}/that/{needs}/{keyed}
-
-// "some {generic} key" -> "some " [token:generic] + " key"
-// "some awesome key" -> starts with "some " ends with " key" -> matches..?
-
-// some {inbetween} sentence {type} key -> "some " [token:inbetween] " sentence " [token:type] " key"
-
-// storage:
-// - "some " : [[" sentence ", " key"], [" key"]]

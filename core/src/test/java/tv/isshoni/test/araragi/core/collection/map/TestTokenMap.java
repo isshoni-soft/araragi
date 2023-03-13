@@ -24,4 +24,14 @@ public class TestTokenMap {
         assertEquals("data.", this.map.get("some key"));
         assertEquals("other data.", this.map.get("some generic key"));
     }
+
+    @Test
+    public void testLimitsTokenMap() {
+        this.map.put("some {other} special key", "data.");
+        this.map.put("some {other} different key", "other data.");
+
+        assertEquals("data.", this.map.get("some keykeykey keykey special key"));
+        assertEquals("other data.", this.map.get("some keykeykey keykey different key"));
+        assertEquals("other data.", this.map.get("some special key different key"));
+    }
 }
