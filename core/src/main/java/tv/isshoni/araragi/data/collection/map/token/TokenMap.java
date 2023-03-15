@@ -115,8 +115,6 @@ public class TokenMap<V> implements Map<String, V> {
         if (containsLiteralKey(key)) {
             return getLiteral(key);
         } else { // not simple, time to start parsing and matching
-            V result = null;
-
             for (Entry<String, List<TokenMatcher>> entry : this.prefixShortcuts.entrySet()) {
                 String k = entry.getKey();
                 List<TokenMatcher> v = entry.getValue();
@@ -126,37 +124,48 @@ public class TokenMap<V> implements Map<String, V> {
                         String[] mustMatch = matcher.getMatches();
                         List<StringToken> tokens = tokenize(matcher.getKey());
 
-                        if (tokens.size() != mustMatch.length) {
-                            continue;
-                        }
-
                         boolean matches = false;
 
-                        for (int x = 0; x < mustMatch.length; x++) {
+                        for (int x = 0; x < tokens.size(); x++) {
                             StringToken token = tokens.get(x);
-                            String match = mustMatch[x];
-                            int matchedIndex = key.indexOf(match, token.getStart());
+                            String match = "";
+
+                            int matchedIndex;
+                            if (x < mustMatch.length) {
+                                match = mustMatch[x];
+                                matchedIndex = key.indexOf(match, token.getStart());
+                            } else {
+                                matchedIndex = key.length();
+                            }
 
                             if (matchedIndex == -1) {
                                 matches = false;
                                 break;
                             }
 
+                            String foundMatchString;
+                            if (tokens.size() <= x + 1) {
+                                foundMatchString = key.substring(matchedIndex);
+                            } else {
+                                foundMatchString = key.substring(matchedIndex, (tokens.get(x + 1).getStart() - 1));
+                            }
+
 //                            String between = key.substring(token.getStart(), matchedIndex);
-                            matches = true;
+                            matches = match.equals(foundMatchString);
                         }
 
                         if (matches) {
-                            result = getLiteral(matcher.getKey());
+                            return getLiteral(matcher.getKey());
                         }
                     }
                 }
             }
 
-            return result;
+            return null;
         }
     }
 
+    // TODO: add some check here that prevents end of string tokens, causes a whole host of problems for the matcher.
     @Override
     public V put(String key, V value) {
         List<StringToken> tokens = tokenize(key);
@@ -172,57 +181,39 @@ public class TokenMap<V> implements Map<String, V> {
 
             List<TokenMatcher> permutations = this.prefixShortcuts.getOrNew(prefix);
 
-            if (permutations.isEmpty()) {
-                int finish = firstFinish + 1;
-                List<String> betweens = new LinkedList<>();
+            boolean newPerm = true;
+            int finish = firstFinish + 1;
+            List<String> betweens = new LinkedList<>();
 
-                for (int x = 1; x < tokens.size(); x++) {
-                    StringToken token = tokens.get(x);
-                    betweens.add(key.substring(finish, token.getStart()));
+            for (int x = 1; x < tokens.size(); x++) {
+                StringToken token = tokens.get(x);
+                String between = key.substring(finish, token.getStart());
+                betweens.add(between);
 
-                    finish = (token.getFinish() + 1);
+                finish = (token.getFinish() + 1);
+            }
+
+            if (finish != key.length()) {
+                betweens.add(key.substring(finish));
+            }
+
+            for (TokenMatcher permutation : permutations) {
+                if (permutation.getMatches().length != betweens.size()) {
+                    continue;
                 }
 
-                if (finish != key.length()) {
-                    betweens.add(key.substring(finish));
+                for (int x = 0; x < betweens.size(); x++) {
+                    if (permutation.getMatches()[x].equals(betweens.get(x))) {
+                        newPerm = false;
+                    } else {
+                        newPerm = true;
+                        break;
+                    }
                 }
+            }
 
+            if (newPerm) {
                 this.prefixShortcuts.add(prefix, new TokenMatcher(key, betweens.toArray(new String[0])));
-            } else {
-                boolean newPerm = true;
-                int finish = firstFinish + 1;
-                List<String> betweens = new LinkedList<>();
-
-                for (int x = 1; x < tokens.size(); x++) {
-                    StringToken token = tokens.get(x);
-                    String between = key.substring(finish, token.getStart());
-                    betweens.add(between);
-
-                    finish = (token.getFinish() + 1);
-                }
-
-                if (finish != key.length()) {
-                    betweens.add(key.substring(finish));
-                }
-
-                for (TokenMatcher permutation : permutations) {
-                    if (permutation.getMatches().length != betweens.size()) {
-                        continue;
-                    }
-
-                    for (int x = 0; x < betweens.size(); x++) {
-                        if (permutation.getMatches()[x].equals(betweens.get(x))) {
-                            newPerm = false;
-                        } else {
-                            newPerm = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (newPerm) {
-                    this.prefixShortcuts.add(prefix, new TokenMatcher(key, betweens.toArray(new String[0])));
-                }
             }
         }
 

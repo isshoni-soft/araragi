@@ -39,4 +39,12 @@ public class TestTokenMap {
         assertEquals("data.", this.map.get("some special key special key"));
         assertNull(this.map.get("some special key special key."));
     }
+
+    @Test
+    public void testMultipleTokens() {
+        this.map.put("/users/{path}/post/{second}/delete", "data");
+
+        assertEquals("data", this.map.get("/users/name/post/id/delete"));
+        assertNull(this.map.get("/users/name/post/id/delete/other"));
+    }
 }
