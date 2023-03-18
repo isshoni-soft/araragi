@@ -2,8 +2,12 @@ package tv.isshoni.test.araragi.core.collection.map;
 
 import org.junit.Before;
 import org.junit.Test;
+import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.data.collection.map.token.TokenMap;
 import tv.isshoni.araragi.string.format.StringFormatter;
+import tv.isshoni.araragi.string.format.StringToken;
+
+import java.util.LinkedList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -46,5 +50,23 @@ public class TestTokenMap {
 
         assertEquals("data", this.map.get("/users/name/post/id/delete"));
         assertNull(this.map.get("/users/name/post/id/delete/other"));
+    }
+
+    @Test
+    public void testGetTokenized() {
+        this.map.put("/users/{userId}/", "data!");
+
+        assertEquals(Pair.of("data!", new LinkedList<StringToken>() {{
+            add(new StringToken(7, 14, "userId", "testuser"));
+        }}), this.map.getTokenized("/users/testuser/"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExceptionOnEndToken() {
+        this.map.put("test {good}!", "good!");
+
+        assertEquals("good!", this.map.get("test magic!"));
+
+        this.map.put("test {bad}", "bad!");
     }
 }

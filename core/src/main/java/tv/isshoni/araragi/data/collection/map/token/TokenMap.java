@@ -1,5 +1,6 @@
 package tv.isshoni.araragi.data.collection.map.token;
 
+import tv.isshoni.araragi.data.Pair;
 import tv.isshoni.araragi.data.collection.map.BucketMap;
 import tv.isshoni.araragi.data.collection.map.Maps;
 import tv.isshoni.araragi.string.format.StringFormatter;
@@ -100,20 +101,20 @@ public class TokenMap<V> implements Map<String, V> {
         if (containsLiteralKey(obj)) {
             return containsLiteralKey(key);
         } else {
-            throw new UnsupportedOperationException(); // TODO
-//            return true;
+            return get(obj) != null;
         }
     }
 
-    @Override
-    public V get(Object obj) {
+    public Pair<V, List<StringToken>> getTokenized(Object obj) {
+        Pair<V, List<StringToken>> nil = Pair.of(null, new LinkedList<>());
+
         if (!(obj instanceof String key)) {
-            return null;
+            return nil;
         }
 
         // if it's a simple map path, aka 1:1 matches a stored key
         if (containsLiteralKey(key)) {
-            return getLiteral(key);
+            return Pair.of(getLiteral(key), new LinkedList<>());
         } else { // not simple, time to start parsing and matching
             for (Entry<String, List<TokenMatcher>> entry : this.prefixShortcuts.entrySet()) {
                 String k = entry.getKey();
@@ -123,6 +124,8 @@ public class TokenMap<V> implements Map<String, V> {
                     for (TokenMatcher matcher : v) {
                         String[] mustMatch = matcher.getMatches();
                         List<StringToken> tokens = tokenize(matcher.getKey());
+                        List<StringToken> resultTokens = new LinkedList<>();
+                        tokens.forEach(t -> resultTokens.add(t.clone()));
 
                         boolean matches = false;
 
@@ -150,27 +153,37 @@ public class TokenMap<V> implements Map<String, V> {
                                 foundMatchString = key.substring(matchedIndex, (tokens.get(x + 1).getStart() - 1));
                             }
 
-//                            String between = key.substring(token.getStart(), matchedIndex);
+                            String between = key.substring(token.getStart(), matchedIndex);
+                            resultTokens.get(x).setReplacement(between);
                             matches = match.equals(foundMatchString);
                         }
 
                         if (matches) {
-                            return getLiteral(matcher.getKey());
+                            return Pair.of(getLiteral(matcher.getKey()), resultTokens);
                         }
                     }
                 }
             }
 
-            return null;
+            return nil;
         }
     }
 
-    // TODO: add some check here that prevents end of string tokens, causes a whole host of problems for the matcher.
+    @Override
+    public V get(Object obj) {
+        return getTokenized(obj).getFirst();
+    }
+
     @Override
     public V put(String key, V value) {
         List<StringToken> tokens = tokenize(key);
 
         if (!tokens.isEmpty()) {
+            StringToken lastToken = tokens.get(tokens.size() - 1);
+            if (lastToken.getFinish() == key.length() - 1) {
+                throw new IllegalArgumentException("Cannot use string that ends with token!");
+            }
+
             StringToken firstToken = tokens.get(0);
             String prefix = "";
             int firstFinish = firstToken.getFinish();

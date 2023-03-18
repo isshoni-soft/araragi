@@ -15,6 +15,10 @@ public class StringToken {
         this.replacement = replacement;
     }
 
+    public StringToken clone() {
+        return new StringToken(this.start, this.finish, this.key, this.replacement);
+    }
+
     public void setReplacement(String replacement) {
         this.replacement = replacement;
     }
