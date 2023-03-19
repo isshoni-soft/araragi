@@ -1,11 +1,11 @@
 package tv.isshoni.test.araragi.core.collection.map;
 
-import static org.junit.Assert.assertEquals;
-
-import tv.isshoni.araragi.data.collection.map.TypeMap;
-
 import org.junit.Before;
 import org.junit.Test;
+import tv.isshoni.araragi.data.collection.map.TypeMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestTypeMap {
 
@@ -32,5 +32,12 @@ public class TestTypeMap {
         assertEquals("INTEGER!!!", STRING_TYPE_MAP.getChild(Number.class));
         assertEquals("INTEGER!!!", STRING_TYPE_MAP.quickGet(Number.class));
         assertEquals("INTEGER!!!", STRING_TYPE_MAP.getChild(Number.class));
+    }
+
+    @Test
+    public void testContainsKey() {
+        STRING_TYPE_MAP.put(Number.class, "NUMBER!!!");
+
+        assertTrue(STRING_TYPE_MAP.containsKey(Integer.class));
     }
 }

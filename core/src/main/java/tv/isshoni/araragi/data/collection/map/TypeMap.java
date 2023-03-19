@@ -44,7 +44,7 @@ public class TypeMap<K extends Class<?>, V> implements Map<K, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        return this.map.get(key) != null;
+        return get(key) != null;
     }
 
     @Override
@@ -173,7 +173,7 @@ public class TypeMap<K extends Class<?>, V> implements Map<K, V> {
                 classes.addAll(Arrays.asList(current.getInterfaces()));
             }
 
-            if (containsKey(current)) {
+            if (this.map.containsKey(current)) {
                 return registerAlias(clazz, quickGet(current));
             }
         }
