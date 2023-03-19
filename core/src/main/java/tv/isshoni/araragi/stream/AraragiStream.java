@@ -349,7 +349,13 @@ public class AraragiStream<T> implements IAraragiStream<T> {
 
     @Override
     public Optional<T> findFirst() {
-        return this.stream.findFirst();
+        List<T> objects = this.stream.toList();
+
+        if (objects.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(objects.get(0));
     }
 
     @Override

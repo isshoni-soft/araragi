@@ -432,7 +432,14 @@ public class AnnotationManager implements IAnnotationManager {
                 Optional<List<Object>> possible = Optional.ofNullable(suppliedByAnnotation.get(annotation));
 
                 stuff = possible.flatMap(l -> Streams.to(l)
-                                .filter(o -> Primitives.convert(current.getType()).isAssignableFrom(o.getClass()))
+                                .filter(o -> {
+                                    if (o == null) {
+                                        return true;
+                                    }
+                                    
+                                    return Primitives.convert(current.getType())
+                                            .isAssignableFrom(o.getClass());
+                                })
                                 .findFirst())
                         .orElse(null);
             } else {
