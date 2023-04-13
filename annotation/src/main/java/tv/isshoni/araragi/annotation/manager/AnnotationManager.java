@@ -418,7 +418,7 @@ public class AnnotationManager implements IAnnotationManager {
 
         for (int x = 0; x < executable.getParameterCount(); x++) {
             Parameter current = params[x];
-            Object stuff = null;
+            Object insert = null;
 
             if (hasManagedAnnotation(current)) {
                 List<Annotation> annotations = getManagedAnnotationsOn(current);
@@ -431,7 +431,7 @@ public class AnnotationManager implements IAnnotationManager {
 
                 Optional<List<Object>> possible = Optional.ofNullable(suppliedByAnnotation.get(annotation));
 
-                stuff = possible.flatMap(l -> Streams.to(l)
+                insert = possible.flatMap(l -> Streams.to(l)
                                 .filter(o -> {
                                     if (o == null) {
                                         return true;
@@ -443,24 +443,18 @@ public class AnnotationManager implements IAnnotationManager {
                                 .findFirst())
                         .orElse(null);
             } else {
-                Object given = givenParameters.get(0);
+                for (int y = 0; y < givenParameters.size(); y++) {
+                    Object cur = givenParameters.get(y);
 
-                if (Primitives.convert(current.getType()).isAssignableFrom(given.getClass())) {
-                    stuff = given;
-                    givenParameters.remove(0);
-                } else {
-                    for (int y = 0; y < givenParameters.size(); y++) {
-                        Object cur = givenParameters.get(x);
-
-                        if (Primitives.convert(current.getType()).isAssignableFrom(cur.getClass())) {
-                            stuff = cur;
-                            break;
-                        }
+                    if (Primitives.convert(current.getType()).isAssignableFrom(cur.getClass())) {
+                        insert = cur;
+                        givenParameters.remove(y);
+                        break;
                     }
                 }
             }
 
-            result[x] = stuff;
+            result[x] = insert;
         }
 
         return result;
