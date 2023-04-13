@@ -50,17 +50,19 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     @Override
     public boolean matches(List<T> other, BiFunction<T, T, Boolean> matcher) {
         List<T> ours = this.stream.toList();
+        List<T> copyOthers = new LinkedList<>(other);
 
-        for (int x = 0; x < ours.size(); x++) {
-            T first = ours.get(x);
-            T second = other.get(x);
+        if (ours.size() != copyOthers.size()) {
+            return false;
+        }
 
-            if (!matcher.apply(first, second)) {
+        for (T obj : ours) {
+            if (!copyOthers.remove(obj)) {
                 return false;
             }
         }
 
-        return true;
+        return copyOthers.isEmpty();
     }
 
     @Override
