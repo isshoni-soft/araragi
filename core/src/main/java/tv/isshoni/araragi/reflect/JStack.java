@@ -25,8 +25,12 @@ public class JStack {
                 .toArray(new Class<?>[0]));
     }
 
-    public static Method getParentMethod() throws NoSuchMethodException {
+    public static Method getEnclosingMethod() throws NoSuchMethodException {
         return getMethodInStack(3);
+    }
+
+    public static Method getParentMethod() throws NoSuchMethodException {
+        return getMethodInStack(4);
     }
 
     public static void forEach(Consumer<StackWalker.StackFrame> consumer) {
