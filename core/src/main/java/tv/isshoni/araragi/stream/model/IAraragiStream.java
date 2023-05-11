@@ -45,6 +45,8 @@ public interface IAraragiStream<T> extends Stream<T> {
 
     Optional<T> find(Predicate<T> selector, Supplier<Optional<T>> otherwise);
 
+    Optional<T> findLast();
+
     void addTo(Collection<T> collection);
 
     void addToOrdered(Collection<T> collection);

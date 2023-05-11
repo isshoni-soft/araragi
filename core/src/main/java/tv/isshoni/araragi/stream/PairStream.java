@@ -216,6 +216,11 @@ public class PairStream<F, S> implements IPairStream<F, S> {
     }
 
     @Override
+    public Optional<Pair<F, S>> findLast() {
+        return this.stream.findLast();
+    }
+
+    @Override
     public void addTo(Collection<Pair<F, S>> collection) {
         this.forEach(collection::add);
     }

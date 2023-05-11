@@ -190,6 +190,17 @@ public class AraragiStream<T> implements IAraragiStream<T> {
     }
 
     @Override
+    public Optional<T> findLast() {
+        List<T> snapshot = this.stream.toList();
+
+        if (snapshot.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(snapshot.get(snapshot.size() - 1));
+    }
+
+    @Override
     public void addTo(Collection<T> collection) {
         this.stream.forEach(collection::add);
     }
