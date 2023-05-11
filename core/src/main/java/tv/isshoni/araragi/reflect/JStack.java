@@ -26,7 +26,7 @@ public class JStack {
     }
 
     public static Method getParentMethod() throws NoSuchMethodException {
-        return getMethodInStack(2);
+        return getMethodInStack(3);
     }
 
     public static void forEach(Consumer<StackWalker.StackFrame> consumer) {
