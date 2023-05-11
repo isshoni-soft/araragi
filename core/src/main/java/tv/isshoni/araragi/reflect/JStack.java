@@ -12,7 +12,7 @@ public class JStack {
 
     public static Method getMethodInStack(int index) throws NoSuchMethodException {
         Optional<StackWalker.StackFrame> optionalFrame = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
-                .walk(f -> Streams.to(f).limit(index).findLast());
+                .walk(f -> Streams.to(f).limit(index + 1).findLast());
 
         if (optionalFrame.isEmpty()) {
             return null;
@@ -26,11 +26,11 @@ public class JStack {
     }
 
     public static Method getEnclosingMethod() throws NoSuchMethodException {
-        return getMethodInStack(3);
+        return getMethodInStack(2);
     }
 
     public static Method getParentMethod() throws NoSuchMethodException {
-        return getMethodInStack(4);
+        return getMethodInStack(3);
     }
 
     public static void forEach(Consumer<StackWalker.StackFrame> consumer) {
