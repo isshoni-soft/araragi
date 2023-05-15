@@ -11,6 +11,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ConcurrentLinkedList<T> implements List<T> {
 
@@ -310,28 +312,52 @@ public class ConcurrentLinkedList<T> implements List<T> {
         return Optional.empty();
     }
 
-    // TODO: doubly linked optimization, check which hemisphere index is in then decide if working backwards is necessary.
     private Node<T> getNodeAt(int index) {
-        if (index >= this.size) {
+        final int finalIndex = index;
+
+        if (finalIndex >= this.size) {
             throw new IndexOutOfBoundsException(index + " >= maximum bound (" + this.size + ")");
         }
 
-        if (index == 0) {
+        if (finalIndex == 0) {
             return this.root;
-        } else if (index == this.size - 1) {
+        } else if (finalIndex == this.size - 1) {
             return this.last;
         } else {
-            int curIndex = 0;
-            Node<T> current = this.root;
+            Node<T> current;
+            String direction;
+            AtomicInteger curIndex = new AtomicInteger();
+            Predicate<Node<T>> linkFinder;
+            Function<Node<T>, Node<T>> nodeSupplier;
+
+            if (finalIndex <= (size / 2) + 5) {
+                current = this.root;
+                direction = "next";
+                curIndex.set(0);
+                linkFinder = (cur) -> cur.next == null;
+                nodeSupplier = (cur) -> {
+                    curIndex.getAndIncrement();
+                    return cur.next;
+                };
+            } else {
+                current = this.last;
+                direction = "prev";
+                curIndex.set(size - 1);
+                linkFinder = (cur) -> cur.prev == null;
+                nodeSupplier = (cur) -> {
+                    curIndex.getAndDecrement();
+                    return cur.prev;
+                };
+            }
+
             while (index != 0) {
                 index--;
 
-                if (current.next == null) {
-                    throw new IllegalStateException("Unexpected broken link! Node(" + current.data.toString() + "@" + curIndex + ").next is null!");
+                if (linkFinder.test(current)) {
+                    throw new IllegalStateException("Unexpected broken link! Node(" + current.data.toString() + "@" + curIndex.get() + ")." + direction + " is null!");
                 }
 
-                current = current.next;
-                curIndex++;
+                current = nodeSupplier.apply(current);
             }
 
             return current;
