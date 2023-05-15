@@ -1,4 +1,4 @@
-package tv.isshoni.araragi.async;
+package tv.isshoni.araragi.concurrent.async;
 
 import tv.isshoni.araragi.runtime.AraragiRuntime;
 

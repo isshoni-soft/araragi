@@ -13,4 +13,16 @@ public class ObjHelpers {
 
         return false;
     }
+
+    public static int hashCode(Object... objects) {
+        int sum = 0;
+
+        for (Object obj : objects) {
+            if (Objects.nonNull(obj)) {
+                sum += obj.hashCode();
+            }
+        }
+
+        return sum;
+    }
 }
