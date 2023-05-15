@@ -6,6 +6,7 @@ araragi {
         add_opens('java.base', 'java.time')
         add_opens('java.base', 'java.time.format')
         add_opens('java.base', 'java.util.concurrent')
+        add_opens('java.base', 'java.lang.reflect')
     }
 }
 

@@ -5,6 +5,10 @@ import java.util.concurrent.Future;
 
 public interface IAsyncManager {
 
+    Thread newManagedThread(Runnable runnable, String name);
+
+    Thread getManagedThread(String name);
+
     <T> Future<T> submit(Callable<T> callable);
 
     Future<?> submit(Runnable runnable);

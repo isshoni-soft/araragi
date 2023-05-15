@@ -81,15 +81,29 @@ public class TestSimpleFormatter {
 
     @Test
     public void testFunctionMessageFormatting() {
-        this.logger.info("Testing: ${dashes%50}");
+        this.logger.info("Testing: ${a:dashes%50}");
 
         assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: --------------------------------------------------", this.output.toString().trim());
     }
 
     @Test
     public void testNowSupplier() {
-        this.logger.info("Testing: ${now}");
+        this.logger.info("Testing: ${a:now}");
 
         assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: " + Instant.now().toString(), this.output.toString().trim());
+    }
+
+    @Test
+    public void testThreadSupplier() {
+        this.logger.info("Thread: ${a:thread}");
+
+        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Thread: " + Thread.currentThread().getName(), this.output.toString().trim());
+    }
+
+    @Test
+    public void testMethodSupplier() {
+        this.logger.info("Method: ${a:method}");
+
+        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Method: testMethodSupplier", this.output.toString().trim());
     }
 }
