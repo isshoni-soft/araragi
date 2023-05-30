@@ -27,6 +27,18 @@ public class ConcurrentLinkedList<T> implements List<T> {
         this.size = 0;
     }
 
+    public ConcurrentLinkedList(Collection<T> other) {
+        this();
+
+        this.addAll(other);
+    }
+
+    public ConcurrentLinkedList(Collection<T> other, Function<T, T> cloner) {
+        this();
+
+        other.forEach(v -> this.add(cloner.apply(v)));
+    }
+
     public synchronized T getFirst() {
         checkSize();
         return this.root.data;
@@ -177,11 +189,8 @@ public class ConcurrentLinkedList<T> implements List<T> {
         Node<T> next = at.next;
 
         if (next != null) {
-            at.next = new Node<>(at.data, at, at.next);
-
-            if (next.next != null) {
-                next.next.prev = at.next;
-            }
+            at.next = new Node<>(at.data, at, next);
+            next.prev = at;
         }
 
         at.data = element;
@@ -315,13 +324,15 @@ public class ConcurrentLinkedList<T> implements List<T> {
     private Node<T> getNodeAt(int index) {
         final int finalIndex = index;
 
+        if (index == 0) {
+            return this.root;
+        }
+
         if (finalIndex >= this.size) {
             throw new IndexOutOfBoundsException(index + " >= maximum bound (" + this.size + ")");
         }
 
-        if (finalIndex == 0) {
-            return this.root;
-        } else if (finalIndex == this.size - 1) {
+        if (finalIndex == this.size - 1) {
             return this.last;
         } else {
             Node<T> current;
@@ -330,6 +341,7 @@ public class ConcurrentLinkedList<T> implements List<T> {
             Predicate<Node<T>> linkFinder;
             Function<Node<T>, Node<T>> nodeSupplier;
 
+            // the +5 here is arbitrary, once n > 5 it's probably worth trying to double-side it.
             if (finalIndex <= (size / 2) + 5) {
                 current = this.root;
                 direction = "next";
@@ -383,16 +395,25 @@ public class ConcurrentLinkedList<T> implements List<T> {
         @Override
         public boolean hasNext() {
             synchronized (this.list) {
-                return this.current.next != null;
+                return checkNode(this.current.next);
             }
         }
 
         @Override
         public T next() {
             synchronized (this.list) {
-                T result = this.current.data;
-                this.lastRet = new NodeRef<>(this.index, this.current);
-                this.current = this.current.next;
+                Node<T> next = this.current.next;
+                T result;
+
+                if (this.index == 0) {
+                    result = this.current.data;
+                    this.lastRet = new NodeRef<>(this.index, this.current);
+                } else {
+                    result = next.data;
+                    this.lastRet = new NodeRef<>(this.index, next);
+                    this.current = next;
+                }
+
                 this.index++;
 
                 return result;
@@ -402,17 +423,17 @@ public class ConcurrentLinkedList<T> implements List<T> {
         @Override
         public boolean hasPrevious() {
             synchronized (this.list) {
-                return this.current.prev != null;
+                return checkNode(this.current.prev);
             }
         }
 
         @Override
         public T previous() {
             synchronized (this.list) {
-                T result = this.current.prev.data;
-                this.lastRet = new NodeRef<>(this.index - 1, this.current.prev);
-                this.current = this.current.prev;
                 this.index--;
+                T result = this.current.prev.data;
+                this.lastRet = new NodeRef<>(this.index, this.current.prev);
+                this.current = this.current.prev;
 
                 return result;
             }
@@ -446,6 +467,8 @@ public class ConcurrentLinkedList<T> implements List<T> {
                 }
 
                 this.list.remove(this.lastRet.index);
+                this.index--;
+                this.current = this.list.getNodeAt(this.index);
             }
         }
 
@@ -459,8 +482,15 @@ public class ConcurrentLinkedList<T> implements List<T> {
         @Override
         public void add(T t) {
             synchronized (this.list) {
-                this.list.add(this.lastRet.index, t);
+                this.list.add(this.index, t);
+
+                this.index++;
+                this.current = this.list.getNodeAt(this.index);
             }
+        }
+
+        private boolean checkNode(Node<T> node) {
+            return node != null && node.data != null;
         }
     }
 
