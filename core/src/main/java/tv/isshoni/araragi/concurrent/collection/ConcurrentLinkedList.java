@@ -9,10 +9,14 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class ConcurrentLinkedList<T> implements List<T> {
 
@@ -264,6 +268,21 @@ public class ConcurrentLinkedList<T> implements List<T> {
         }
 
         return result;
+    }
+
+    @Override
+    public synchronized Spliterator<T> spliterator() {
+        return Spliterators.spliterator(this, 0);
+    }
+
+    @Override
+    public synchronized Stream<T> stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
+
+    @Override
+    public synchronized Stream<T> parallelStream() {
+        return StreamSupport.stream(spliterator(), true);
     }
 
     private void checkSize() {
