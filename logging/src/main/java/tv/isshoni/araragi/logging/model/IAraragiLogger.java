@@ -36,8 +36,23 @@ public interface IAraragiLogger {
         }
     }
 
+    default void log(String message, ILevel level, Object... params) {
+        Map<String, Supplier<String>> data = new HashMap<>();
+
+        for (int x = 0; x < params.length; x++) {
+            final int fX = x;
+            data.put(String.valueOf(x), () -> params[fX].toString());
+        }
+
+        this.log(message, level, data);
+    }
+
     default void log(String message, ILevel level) {
         this.log(message, level, new HashMap<>());
+    }
+
+    default void info(String message, Object... objs) {
+        this.log(message, Level.INFO, objs);
     }
 
     default void info(String message, Map<String, Supplier<String>> data) {
@@ -48,6 +63,10 @@ public interface IAraragiLogger {
         this.info(message, new HashMap<>());
     }
 
+    default void warn(String message, Object... objs) {
+        this.log(message, Level.WARNING, objs);
+    }
+
     default void warn(String message, Map<String, Supplier<String>> data) {
         this.log(message, Level.WARNING, data);
     }
@@ -56,12 +75,20 @@ public interface IAraragiLogger {
         this.warn(message, new HashMap<>());
     }
 
+    default void error(String message, Object... objs) {
+        this.log(message, Level.ERROR, objs);
+    }
+
     default void error(String message, Map<String, Supplier<String>> data) {
         this.log(message, Level.ERROR, data);
     }
 
     default void error(String message) {
         this.error(message, new HashMap<>());
+    }
+
+    default void debug(String message, Object... objs) {
+        this.log(message, Level.DEBUG, objs);
     }
 
     default void debug(String message, Map<String, Supplier<String>> data) {

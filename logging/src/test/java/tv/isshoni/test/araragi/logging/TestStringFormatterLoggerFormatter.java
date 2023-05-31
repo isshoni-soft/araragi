@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import tv.isshoni.araragi.logging.AraragiLogger;
-import tv.isshoni.araragi.logging.format.SimpleLoggerFormatter;
+import tv.isshoni.araragi.logging.format.StringFormatterLoggerFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
 
 import java.io.ByteArrayOutputStream;
@@ -20,8 +20,8 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({IAraragiLogger.class, AraragiLogger.class, ZonedDateTime.class, Instant.class, SimpleLoggerFormatter.class})
-public class TestSimpleFormatter {
+@PrepareForTest({IAraragiLogger.class, AraragiLogger.class, ZonedDateTime.class, Instant.class, StringFormatterLoggerFormatter.class})
+public class TestStringFormatterLoggerFormatter {
 
     private ZonedDateTime time;
 
@@ -31,12 +31,15 @@ public class TestSimpleFormatter {
 
     private ByteArrayOutputStream output;
 
+    // this abomination forces ZonedDateTime.now() and Instant.now() to return fixed values
+    // allows for "now" calls to be strictly tested.
     @Before
     public void setup() {
         this.logger = AraragiLogger.create("Test Logger");
         this.output = new ByteArrayOutputStream();
         this.time = ZonedDateTime.now();
 
+        // intentionally stagger times so that an instant != a ZonedDateTime when comparing.
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
@@ -66,7 +69,7 @@ public class TestSimpleFormatter {
             put("action", () -> "gambling");
         }});
 
-        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Good morning Johnathan, how was your gambling?", this.output.toString().trim());
+        assertEquals("[" + StringFormatterLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Good morning Johnathan, how was your gambling?", this.output.toString().trim());
     }
 
     @Test
@@ -76,34 +79,35 @@ public class TestSimpleFormatter {
             put("pronoun", () -> "${formal_pronoun}");
         }});
 
-        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Good afternoon Sir.", this.output.toString().trim());
+        assertEquals("[" + StringFormatterLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Good afternoon Sir.", this.output.toString().trim());
     }
 
     @Test
     public void testFunctionMessageFormatting() {
         this.logger.info("Testing: ${a:dashes%50}");
 
-        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: --------------------------------------------------", this.output.toString().trim());
+        assertEquals("[" + StringFormatterLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: --------------------------------------------------", this.output.toString().trim());
     }
 
     @Test
     public void testNowSupplier() {
         this.logger.info("Testing: ${a:now}");
 
-        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: " + Instant.now().toString(), this.output.toString().trim());
+        assertEquals("[" + StringFormatterLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Testing: " + StringFormatterLoggerFormatter.DATE_FORMATTER.format(this.instant), this.output.toString().trim());
     }
 
     @Test
     public void testThreadSupplier() {
         this.logger.info("Thread: ${a:thread}");
 
-        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Thread: " + Thread.currentThread().getName(), this.output.toString().trim());
+        assertEquals("[" + StringFormatterLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Thread: " + Thread.currentThread().getName(), this.output.toString().trim());
     }
 
     @Test
     public void testMethodSupplier() {
         this.logger.info("Method: ${a:method}");
+        // expected: "Method: testMethodSupplier"
 
-        assertEquals("[" + SimpleLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Method: testMethodSupplier", this.output.toString().trim());
+        assertEquals("[" + StringFormatterLoggerFormatter.DATE_FORMATTER.format(this.time) + "]: Test Logger INFO -] Method: testMethodSupplier", this.output.toString().trim());
     }
 }

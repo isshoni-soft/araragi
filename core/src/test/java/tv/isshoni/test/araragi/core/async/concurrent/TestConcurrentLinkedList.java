@@ -5,8 +5,13 @@ import org.junit.Test;
 import tv.isshoni.araragi.concurrent.collection.ConcurrentLinkedList;
 import tv.isshoni.araragi.stream.Streams;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -20,9 +25,12 @@ public class TestConcurrentLinkedList {
 
     private ConcurrentLinkedList<String> concurrentList;
 
+    private ExecutorService executorService;
+
     @Before
     public void setup() {
         this.concurrentList = new ConcurrentLinkedList<>();
+        this.executorService = Executors.newFixedThreadPool(20);
     }
 
     @Test
@@ -52,6 +60,14 @@ public class TestConcurrentLinkedList {
     }
 
     @Test
+    public void testContains() {
+        this.concurrentList.add("test2");
+
+        assertTrue(this.concurrentList.contains("test2"));
+        assertFalse(this.concurrentList.contains("test1"));
+    }
+
+    @Test
     public void testRemove() {
         this.concurrentList.add("test1");
         assertEquals("test1", this.concurrentList.remove(0));
@@ -67,6 +83,14 @@ public class TestConcurrentLinkedList {
         assertEquals("test2", this.concurrentList.get(0));
         assertEquals("test2", this.concurrentList.remove(0));
         assertEquals(0, this.concurrentList.size());
+        assertTrue(this.concurrentList.isEmpty());
+    }
+
+    @Test
+    public void testRemoveAll() {
+        a6();
+
+        this.concurrentList.removeAll(Arrays.asList(A6));
         assertTrue(this.concurrentList.isEmpty());
     }
 
@@ -136,6 +160,39 @@ public class TestConcurrentLinkedList {
         ConcurrentLinkedList<String> otherList = new ConcurrentLinkedList<>(this.concurrentList);
 
         assertTrue(Streams.to(this.concurrentList).matches(otherList, Object::equals));
+    }
+
+    @Test
+    public void testScaledConcurrency() throws InterruptedException {
+        int size = 50000;
+        String[] expected = new String[size];
+
+        for (int x = 0; x < expected.length; x++) {
+            String str;
+            do {
+                int generated = (int) (Math.random() * 100);
+                str = String.valueOf(generated);
+            } while (x > 0 && expected[x - 1].equals(str));
+
+            expected[x] = str;
+        }
+
+        HashSet<String> submitted = new HashSet<>();
+
+        for (String str : expected) {
+            executorService.submit(() -> {
+                if (!this.concurrentList.contains(str)) {
+                    this.concurrentList.add(str);
+                }
+            });
+
+            submitted.add(str);
+        }
+
+        executorService.shutdown();
+        executorService.awaitTermination(30, TimeUnit.SECONDS);
+
+        assertTrue(submitted.containsAll(this.concurrentList));
     }
 
     private void a6() {

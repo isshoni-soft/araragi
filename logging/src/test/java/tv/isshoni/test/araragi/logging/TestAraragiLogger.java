@@ -6,10 +6,9 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import tv.isshoni.araragi.logging.AraragiLogger;
-import tv.isshoni.araragi.logging.format.SimpleLoggerFormatter;
+import tv.isshoni.araragi.logging.format.StringFormatterLoggerFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
 import tv.isshoni.araragi.logging.model.level.Level;
-import tv.isshoni.test.araragi.logging.model.TestLoggerFormatter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -20,7 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({IAraragiLogger.class, AraragiLogger.class, ZonedDateTime.class, SimpleLoggerFormatter.class})
+@PrepareForTest({IAraragiLogger.class, AraragiLogger.class, ZonedDateTime.class, StringFormatterLoggerFormatter.class})
 public class TestAraragiLogger {
 
     private ZonedDateTime time;
@@ -35,7 +34,10 @@ public class TestAraragiLogger {
         this.output = new ByteArrayOutputStream();
         this.time = ZonedDateTime.now();
 
-        this.logger.setFormatter(new TestLoggerFormatter());
+        StringFormatterLoggerFormatter loggerFormatter = new StringFormatterLoggerFormatter();
+        loggerFormatter.setPrefixFormat("[${al:level}]: ${al:name} - ");
+
+        this.logger.setFormatter(loggerFormatter);
 
         System.setOut(new PrintStream(this.output));
         System.setErr(new PrintStream(this.output));

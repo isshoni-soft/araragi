@@ -1,7 +1,7 @@
 package tv.isshoni.araragi.logging;
 
 import tv.isshoni.araragi.logging.driver.ConsoleDriver;
-import tv.isshoni.araragi.logging.format.SimpleLoggerFormatter;
+import tv.isshoni.araragi.logging.format.StringFormatterLoggerFormatter;
 import tv.isshoni.araragi.logging.model.IAraragiLogger;
 import tv.isshoni.araragi.logging.model.ILoggerDriver;
 import tv.isshoni.araragi.logging.model.format.ILoggerFormatter;
@@ -44,7 +44,7 @@ public class AraragiLogger implements IAraragiLogger {
 
     public AraragiLogger(String name) {
         this.name = name;
-        this.formatter = new SimpleLoggerFormatter();
+        this.formatter = new StringFormatterLoggerFormatter();
         this.drivers = new LinkedList<>();
         this.level = Level.INFO;
         this.contextFactory = new SimpleMessageContextFactory();

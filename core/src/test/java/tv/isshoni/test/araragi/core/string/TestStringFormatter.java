@@ -37,4 +37,13 @@ public class TestStringFormatter {
 
         assertEquals("value!", formatter.format("{{test}}"));
     }
+
+    @Test
+    public void testRecursiveKeys() {
+        StringFormatter formatter = new StringFormatter();
+        formatter.registerSupplier("greeting", () -> "Hello ${name}!");
+        formatter.registerSupplier("name", () -> "Johnathan");
+
+        assertEquals("Hello Johnathan!", formatter.format("${greeting}"));
+    }
 }

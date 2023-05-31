@@ -1,5 +1,6 @@
 package tv.isshoni.araragi.logging.model.level;
 
+// TODO: De-enumify me, constant objects or smth, allow ppl to register their own levels.
 public enum Level implements ILevel {
     DEBUG("DEBUG", 0),
     INFO("INFO", 1000),

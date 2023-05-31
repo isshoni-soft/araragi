@@ -8,6 +8,7 @@ import tv.isshoni.araragi.string.format.StringFormatter;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Locale;
@@ -16,8 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class SimpleLoggerFormatter implements ILoggerFormatter {
+// Bulky name; but it's a logger formatter that makes heavy use of the StringFormatter
+// nothing simple about it anymore. Especially now that I've been adding goodies to it.
+public class StringFormatterLoggerFormatter implements ILoggerFormatter {
 
+    // Frankly I'm afraid to look into how deep the callstacks for Winry can get.
     private static final int NUMBER_OF_CALLS_FOR_PARENT_METHOD = 23;
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss.SS")
@@ -33,14 +37,18 @@ public class SimpleLoggerFormatter implements ILoggerFormatter {
 
     private boolean suppressTriggers;
 
-    public SimpleLoggerFormatter() {
+    private String prefixFormat;
+
+    public StringFormatterLoggerFormatter() {
         this.suppressTriggers = false;
         this.functions = new ConcurrentHashMap<>();
         this.suppliers = new ConcurrentHashMap<>();
         this.aliases = new ConcurrentHashMap<>();
         this.aliasTriggers = new ConcurrentHashMap<>();
+        this.prefixFormat = "[${a:zdnow}]: ${al:name} ${al:level} -] ";
 
-        registerGlobalSupplier("a:now", () -> Instant.now().toString());
+        registerGlobalSupplier("a:inow", () -> DATE_FORMATTER.format(Instant.now()));
+        registerGlobalSupplier("a:zdnow", () -> DATE_FORMATTER.format(ZonedDateTime.now()));
         registerGlobalSupplier("a:thread", () -> Thread.currentThread().getName());
         registerGlobalSupplier("a:method", () -> {
             try {
@@ -56,6 +64,8 @@ public class SimpleLoggerFormatter implements ILoggerFormatter {
             return "-".repeat(num);
         });
 
+        registerAlias("a:now", "a:inow");
+        registerAlias("a:zonednow", "a:zdnow");
         registerAlias("dashes", "a:dashes", () -> System.out.println("Please use a:dashes instead!"));
     }
 
@@ -73,12 +83,23 @@ public class SimpleLoggerFormatter implements ILoggerFormatter {
                 .forEach(formatter::registerAlias);
 
         context.setMessage(formatter.format(context.getMessage()));
-        context.setPrefix((lg, lv, t) -> "[" + DATE_FORMATTER.format(t) + "]: " + lg.getName() + " " + lv.getName() + " -] ");
+
+        context.setPrefix((lg, lv, t) -> {
+            // add prefix-specific keys
+            formatter.registerSupplier("al:name", lg::getName);
+            formatter.registerSupplier("al:level", lv::getName);
+
+            return formatter.format(this.prefixFormat);
+        });
     }
 
     @Override
     public void setSuppressTriggers(boolean suppressTriggers) {
         this.suppressTriggers = suppressTriggers;
+    }
+
+    public void setPrefixFormat(String prefixFormat) {
+        this.prefixFormat = prefixFormat;
     }
 
     @Override
@@ -115,5 +136,9 @@ public class SimpleLoggerFormatter implements ILoggerFormatter {
     @Override
     public boolean isSuppressingTriggers() {
         return this.suppressTriggers;
+    }
+
+    public String getPrefixFormat() {
+        return this.prefixFormat;
     }
 }

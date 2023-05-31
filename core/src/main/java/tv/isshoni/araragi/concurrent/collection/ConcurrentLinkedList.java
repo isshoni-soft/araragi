@@ -360,13 +360,15 @@ public class ConcurrentLinkedList<T> implements List<T> {
                     curIndex.getAndDecrement();
                     return cur.prev;
                 };
+                index = (this.size - 1) - index;
             }
 
             while (index != 0) {
                 index--;
 
                 if (linkFinder.test(current)) {
-                    throw new IllegalStateException("Unexpected broken link! Node(" + current.data.toString() + "@" + curIndex.get() + ")." + direction + " is null!");
+                    String dataStr = current.data == null ? "null" : current.data.toString();
+                    throw new IllegalStateException("Unexpected broken link! Node(" + dataStr + "@" + curIndex.get() + ")." + direction + " is null!");
                 }
 
                 current = nodeSupplier.apply(current);
