@@ -8,6 +8,7 @@ import tv.isshoni.araragi.stream.Streams;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -193,6 +194,17 @@ public class TestConcurrentLinkedList {
         executorService.awaitTermination(30, TimeUnit.SECONDS);
 
         assertTrue(submitted.containsAll(this.concurrentList));
+    }
+
+    @Test
+    public void testOneToList() {
+        this.concurrentList.add("one!");
+
+        ListIterator<String> li = this.concurrentList.listIterator();
+        assertTrue(li.hasNext());
+
+        List<String> list = Streams.to(this.concurrentList).toList();
+        assertEquals(1, list.size());
     }
 
     private void a6() {

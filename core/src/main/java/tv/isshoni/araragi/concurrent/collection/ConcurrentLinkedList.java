@@ -416,7 +416,7 @@ public class ConcurrentLinkedList<T> implements List<T> {
         @Override
         public boolean hasNext() {
             synchronized (this.list) {
-                return checkNode(this.current.next);
+                return (this.index == 0 && this.current.data != null) || checkNode(this.current.next);
             }
         }
 
