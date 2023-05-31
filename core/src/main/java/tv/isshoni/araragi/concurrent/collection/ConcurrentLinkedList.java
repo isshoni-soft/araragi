@@ -80,6 +80,10 @@ public class ConcurrentLinkedList<T> implements List<T> {
 
     @Override
     public synchronized <E> E[] toArray(E[] a) {
+        if (this.size == 0) {
+            return (E[]) new Object[0];
+        }
+
         if (a.length < this.size) {
             a = (E[]) Array.newInstance(a.getClass().getComponentType(), this.size);
         }

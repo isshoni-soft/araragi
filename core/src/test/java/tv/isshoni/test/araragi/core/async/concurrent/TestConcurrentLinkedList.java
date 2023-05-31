@@ -207,6 +207,11 @@ public class TestConcurrentLinkedList {
         assertEquals(1, list.size());
     }
 
+    @Test
+    public void testToArrayZero() {
+        assertArrayEquals(new Object[0], this.concurrentList.toArray());
+    }
+
     private void a6() {
         this.concurrentList.add("a");
         this.concurrentList.add("b");
