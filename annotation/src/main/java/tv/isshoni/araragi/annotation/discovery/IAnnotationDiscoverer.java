@@ -85,7 +85,7 @@ public interface IAnnotationDiscoverer {
 
         for (Class<? extends Annotation> uclazz : unregistered) {
             if (clazz.equals(uclazz) || levels.contains(uclazz)) {
-                throw new IllegalStateException("Found circular dependency; Levels: " + levels + " Current: " + clazz + " UClass: " + uclazz);
+                continue;
             }
 
             if (all.contains(uclazz)) {
