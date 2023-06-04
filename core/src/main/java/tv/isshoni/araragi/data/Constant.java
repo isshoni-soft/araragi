@@ -18,21 +18,21 @@ public class Constant<E> {
         this.locked = true;
     }
 
-    public void ifPresent(Consumer<E> consumer) {
+    public synchronized void ifPresent(Consumer<E> consumer) {
         if (isPresent()) {
             consumer.accept(this.instance);
         }
     }
 
-    public boolean isLocked() {
+    public synchronized boolean isLocked() {
         return this.locked;
     }
 
-    public boolean isPresent() {
+    public synchronized boolean isPresent() {
         return this.instance != null;
     }
 
-    public void set(E value) {
+    public synchronized void set(E value) {
         if (this.locked) {
             throw new IllegalStateException("Cannot update a constant value!");
         }
@@ -41,7 +41,7 @@ public class Constant<E> {
         this.locked = true;
     }
 
-    public E get() {
+    public synchronized E get() {
         return this.instance;
     }
 }
