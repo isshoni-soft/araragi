@@ -9,15 +9,42 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class ReflectionUtil {
+
+    public static Class<?>[] getParameterizedTypes(Type type) {
+        if (type instanceof ParameterizedType parameterizedType) {
+            return Streams.to(parameterizedType.getActualTypeArguments())
+                    .map(Type::getTypeName)
+                    .map(ReflectionUtil::clazz)
+                    .filter(Objects::nonNull)
+                    .toArray(Class[]::new);
+        } else {
+            return null;
+        }
+    }
+
+    public static boolean isParameterized(Type type) {
+        return ParameterizedType.class.isAssignableFrom(type.getClass());
+    }
+
+    public static Class<?> clazz(String name) {
+        try {
+            return Class.forName(name);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
 
     public static boolean hasConstructor(Class<?> clazz, Class<?>... parameters) {
         try {
