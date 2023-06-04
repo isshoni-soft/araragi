@@ -27,6 +27,8 @@ public interface IAnnotationManager {
 
     void discoverProcessor(Class<? extends IAnnotationProcessor<? extends Annotation>> processor);
 
+    void discoverProcessor(IAnnotationProcessor<? extends Annotation> processor);
+
     void register(Class<? extends Annotation>[] annotations, Class<? extends IAnnotationProcessor<?>>... processors);
 
     void register(Class<? extends Annotation>[] annotations, IAnnotationProcessor<Annotation>... processors);
@@ -36,6 +38,8 @@ public interface IAnnotationManager {
     void register(Class<? extends IAnnotationProcessor> processor, QuadFunction<Annotation, AnnotatedElement, IAnnotationProcessor<Annotation>, IAnnotationManager, IPreparedAnnotationProcessor> converter);
 
     void register(Class<? extends Annotation> annotation, IAnnotationProcessor<Annotation>... processors);
+
+    void reigster(Class<? extends Annotation>[] annotations, IAnnotationProcessor<Annotation>... processors);
 
     void register(Class<? extends Annotation> annotation, Collection<IAnnotationProcessor<Annotation>> processors);
 

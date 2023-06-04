@@ -98,6 +98,15 @@ public class AnnotationManager implements IAnnotationManager {
         register(processor.getAnnotation(AttachTo.class).value(), processor);
     }
 
+    @Override
+    public void discoverProcessor(IAnnotationProcessor<? extends Annotation> processor) {
+        if (!processor.getClass().isAnnotationPresent(AttachTo.class)) {
+            throw new RuntimeException(processor.getClass().getName() + " does not have an @AttachTo annotation");
+        }
+
+        register(processor.getClass().getAnnotation(AttachTo.class).value(), (IAnnotationProcessor<Annotation>) processor);
+    }
+
     @SafeVarargs
     @Override
     public final void register(Class<? extends Annotation>[] annotations, Class<? extends IAnnotationProcessor<?>>... processors) {
@@ -138,6 +147,13 @@ public class AnnotationManager implements IAnnotationManager {
     @Override
     public final void register(Class<? extends Annotation> annotation, IAnnotationProcessor<Annotation>... processors) {
         register(annotation, Arrays.asList(processors));
+    }
+
+    @SafeVarargs
+    @Override
+    public final void reigster(Class<? extends Annotation>[] annotations, IAnnotationProcessor<Annotation>... processors) {
+        Streams.to(annotations)
+                .forEach(a -> register(a, processors));
     }
 
     @Override
