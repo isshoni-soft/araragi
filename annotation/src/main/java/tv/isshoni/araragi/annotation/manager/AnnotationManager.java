@@ -90,7 +90,7 @@ public class AnnotationManager implements IAnnotationManager {
     }
 
     @Override
-    public void discoverProcessor(Class<? extends IAnnotationProcessor<Annotation>> processor) {
+    public void discoverProcessor(Class<? extends IAnnotationProcessor<? extends Annotation>> processor) {
         if (!processor.isAnnotationPresent(AttachTo.class)) {
             throw new RuntimeException(processor.getName() + " does not have an @AttachTo annotation");
         }

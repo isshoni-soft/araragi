@@ -25,7 +25,7 @@ public interface IAnnotationManager {
 
     void discoverAnnotation(Class<? extends Annotation> annotation);
 
-    void discoverProcessor(Class<? extends IAnnotationProcessor<Annotation>> processor);
+    void discoverProcessor(Class<? extends IAnnotationProcessor<? extends Annotation>> processor);
 
     void register(Class<? extends Annotation>[] annotations, Class<? extends IAnnotationProcessor<?>>... processors);
 
