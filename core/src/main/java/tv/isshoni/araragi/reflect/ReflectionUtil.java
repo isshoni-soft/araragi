@@ -22,6 +22,27 @@ import java.util.stream.Collectors;
 
 public final class ReflectionUtil {
 
+    public static <T> T fetchFrom(Field field, Object object) {
+        boolean accessible = field.canAccess(object);
+
+        if (!accessible) {
+            field.setAccessible(true);
+        }
+
+        Object next;
+        try {
+            next = field.get(object);
+        } catch (IllegalAccessException e) {
+            return null;
+        } finally {
+            if (!accessible) {
+                field.setAccessible(false);
+            }
+        }
+
+        return (T) next;
+    }
+
     public static Class<?>[] getParameterizedTypes(Type type) {
         if (type instanceof ParameterizedType parameterizedType) {
             return Streams.to(parameterizedType.getActualTypeArguments())
