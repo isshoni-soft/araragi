@@ -21,6 +21,36 @@ public final class Primitives {
         return primitives.containsKey(clazz);
     }
 
+    public static float[] to(Float[] floats) {
+        float[] result = new float[floats.length];
+
+        for (int x = 0; x < floats.length; x++) {
+            result[x] = floats[x];
+        }
+
+        return result;
+    }
+
+    public static int[] to(Integer[] ints) {
+        int[] result = new int[ints.length];
+
+        for (int x = 0; x < ints.length; x++) {
+            result[x] = ints[x];
+        }
+
+        return result;
+    }
+
+    public static double[] to(Double[] doubles) {
+        double[] result = new double[doubles.length];
+
+        for (int x = 0; x < doubles.length; x++) {
+            result[x] = doubles[x];
+        }
+
+        return result;
+    }
+
     public static Class<?> convert(Class<?> clazz) {
         if (isPrimitive(clazz)) {
             return primitives.get(clazz);
