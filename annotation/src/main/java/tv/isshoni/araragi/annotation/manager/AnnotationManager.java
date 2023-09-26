@@ -492,7 +492,11 @@ public class AnnotationManager implements IAnnotationManager {
             return result;
         }
 
-        result.addAll(Arrays.asList(constructor.getParameterTypes()));
+        Streams.to(constructor.getParameterTypes())
+                .forEach(type -> {
+                    result.add(type);
+                    result.addAll(getAllTypesForConstruction(type));
+                });
 
         return result;
     }
