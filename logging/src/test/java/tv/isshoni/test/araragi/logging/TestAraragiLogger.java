@@ -75,4 +75,10 @@ public class TestAraragiLogger {
 
         assertEquals("[ERROR]: Test Logger - blah", this.output.toString().trim());
     }
+
+    @Test
+    public void testSingleCharacterToken() {
+        char c = '$';
+        this.logger.info("test ${0}", c);
+    }
 }

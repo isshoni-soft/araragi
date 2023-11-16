@@ -74,6 +74,10 @@ public class StringFormatter {
             char current;
             int temp = -1;
             for (int y = 0; y < this.discriminatorPrefix.length() && first == -1; y++, x++) {
+                if (x >= message.length()) {
+                    break;
+                }
+
                 current = message.charAt(x);
 
                 if (current != this.discriminatorPrefix.charAt(y)) {
