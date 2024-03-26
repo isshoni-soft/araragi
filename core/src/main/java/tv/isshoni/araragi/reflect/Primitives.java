@@ -17,6 +17,19 @@ public final class Primitives {
         put(char.class, Character.class);
     }};
 
+    private static final HashMap<Class<?>, Class<?>> reverseMap = new HashMap<>() {{
+        primitives.forEach((p, s) -> reverseMap.put(s, p));
+    }};
+
+    public static boolean checkType(Object obj, Class<?> clazz) {
+        if (!isPrimitive(clazz)) {
+            throw new IllegalArgumentException("class must match primitive type!");
+        }
+
+        return clazz.isAssignableFrom(obj.getClass())
+                || reverseMap.get(clazz).isAssignableFrom(obj.getClass());
+    }
+
     public static boolean isPrimitive(Class<?> clazz) {
         return primitives.containsKey(clazz);
     }
