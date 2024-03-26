@@ -18,7 +18,7 @@ public final class Primitives {
     }};
 
     private static final HashMap<Class<?>, Class<?>> reverseMap = new HashMap<>() {{
-        primitives.forEach((p, s) -> reverseMap.put(s, p));
+        primitives.forEach((p, s) -> this.put(s, p));
     }};
 
     public static boolean checkType(Object obj, Class<?> clazz) {
