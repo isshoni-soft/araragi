@@ -5,6 +5,7 @@ import org.junit.Test;
 import tv.isshoni.araragi.data.collection.map.TypeMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class TestTypeMap {
@@ -39,5 +40,15 @@ public class TestTypeMap {
         STRING_TYPE_MAP.put(Number.class, "NUMBER!!!");
 
         assertTrue(STRING_TYPE_MAP.containsKey(Integer.class));
+    }
+
+    @Test
+    public void testContainsKeyChild() {
+        STRING_TYPE_MAP.put(Number.class, "NUMBER!!!");
+        STRING_TYPE_MAP.put(Integer.class, "Integer!!!");
+
+        assertTrue(STRING_TYPE_MAP.containsKeyChild(Integer.class));
+        assertTrue(STRING_TYPE_MAP.containsKeyChild(Number.class));
+        assertFalse(STRING_TYPE_MAP.containsKeyChild(Float.class));
     }
 }

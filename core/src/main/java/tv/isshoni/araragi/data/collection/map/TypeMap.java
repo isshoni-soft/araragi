@@ -47,6 +47,10 @@ public class TypeMap<K extends Class<?>, V> implements Map<K, V> {
         return get(key) != null;
     }
 
+    public boolean containsKeyChild(Object key) {
+        return getChild(key) != null;
+    }
+
     @Override
     public boolean containsValue(Object value) {
         return this.map.containsValue(value);
