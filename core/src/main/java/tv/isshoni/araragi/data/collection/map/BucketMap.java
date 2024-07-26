@@ -98,4 +98,8 @@ public class BucketMap<K, V> implements Map<K, List<V>> {
     public Set<Entry<K, List<V>>> entrySet() {
         return this.wrapped.entrySet();
     }
+
+    public Map<K, List<V>> getWrapped() {
+        return this.wrapped;
+    }
 }
