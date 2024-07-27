@@ -6,6 +6,7 @@ import tv.isshoni.araragi.data.collection.map.TypeMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class TestTypeMap {
@@ -18,37 +19,53 @@ public class TestTypeMap {
     }
 
     @Test
-    public void testGetParent() {
+    public void testGet() {
         STRING_TYPE_MAP.put(Number.class, "NUMBER!!!");
+        STRING_TYPE_MAP.put(Integer.class, "INTEGER!!!");
 
-        assertEquals("NUMBER!!!", STRING_TYPE_MAP.getParent(Integer.class));
-        assertEquals("NUMBER!!!", STRING_TYPE_MAP.quickGet(Integer.class));
-        assertEquals("NUMBER!!!", STRING_TYPE_MAP.getParent(Integer.class));
+        assertEquals("NUMBER!!!", STRING_TYPE_MAP.get(Number.class));
+        assertEquals("INTEGER!!!", STRING_TYPE_MAP.get(Integer.class));
+        assertEquals("NUMBER!!!", STRING_TYPE_MAP.get(Float.class));
     }
 
     @Test
-    public void testGetChild() {
+    public void testDirectGet() {
         STRING_TYPE_MAP.put(Integer.class, "INTEGER!!!");
 
-        assertEquals("INTEGER!!!", STRING_TYPE_MAP.getChild(Number.class));
-        assertEquals("INTEGER!!!", STRING_TYPE_MAP.quickGet(Number.class));
-        assertEquals("INTEGER!!!", STRING_TYPE_MAP.getChild(Number.class));
+        assertNull(STRING_TYPE_MAP.directGet(Number.class));
+    }
+
+    @Test
+    public void testCacheGet() {
+        STRING_TYPE_MAP.put(Number.class, "NUMBER!!!");
+
+        assertNull(STRING_TYPE_MAP.cacheGet(Float.class));
+        assertEquals("NUMBER!!!", STRING_TYPE_MAP.get(Float.class));
+        assertEquals("NUMBER!!!", STRING_TYPE_MAP.cacheGet(Float.class));
+    }
+
+    @Test
+    public void testResetCache() {
+        testCacheGet();
+
+        STRING_TYPE_MAP.resetCache();
+
+        assertNull(STRING_TYPE_MAP.cacheGet(Float.class));
     }
 
     @Test
     public void testContainsKey() {
-        STRING_TYPE_MAP.put(Number.class, "NUMBER!!!");
+        STRING_TYPE_MAP.put(Integer.class, "NUMBER!!!");
 
         assertTrue(STRING_TYPE_MAP.containsKey(Integer.class));
+        assertFalse(STRING_TYPE_MAP.containsKey(Number.class));
     }
 
     @Test
-    public void testContainsKeyChild() {
+    public void testContainsParent() {
         STRING_TYPE_MAP.put(Number.class, "NUMBER!!!");
-        STRING_TYPE_MAP.put(Integer.class, "Integer!!!");
 
-        assertTrue(STRING_TYPE_MAP.containsKeyChild(Integer.class));
-        assertTrue(STRING_TYPE_MAP.containsKeyChild(Number.class));
-        assertFalse(STRING_TYPE_MAP.containsKeyChild(Float.class));
+        assertTrue(STRING_TYPE_MAP.containsParent(Integer.class));
+        assertFalse(STRING_TYPE_MAP.containsKey(Integer.class));
     }
 }
