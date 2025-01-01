@@ -45,7 +45,9 @@ class AraragiPlugin implements Plugin<Project> {
                         }
                     }
                 }
-            } catch (Throwable ignored) { }
+            } catch (Throwable ignored) {
+                publishing.repositories.ext.isshoni = { } // this needs to be here to not break configuration blocks on erring setups.
+            }
         }
 
         child.repositories.ext.isshoni = {
