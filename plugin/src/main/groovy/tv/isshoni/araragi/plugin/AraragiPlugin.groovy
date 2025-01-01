@@ -2,7 +2,6 @@ package tv.isshoni.araragi.plugin
 
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.credentials.AwsCredentials
@@ -33,9 +32,9 @@ class AraragiPlugin implements Plugin<Project> {
 
         final publishing = child.extensions.findByType(PublishingExtension.class)
         if (publishing != null) {
-            def awsCredentials = new DefaultAWSCredentialsProviderChain().getCredentials() as BasicAWSCredentials
+            try {
+                def awsCredentials = new DefaultAWSCredentialsProviderChain().getCredentials() as BasicAWSCredentials
 
-            if (awsCredentials != null) {
                 publishing.repositories.ext.isshoni = {
                     publishing.repositories.maven {
                         url = "s3://repo.isshoni.institute"
@@ -46,7 +45,7 @@ class AraragiPlugin implements Plugin<Project> {
                         }
                     }
                 }
-            }
+            } catch (Throwable ignored) { }
         }
 
         child.repositories.ext.isshoni = {
