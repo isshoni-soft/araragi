@@ -45,7 +45,7 @@ java {
     targetCompatibility JavaVersion.VERSION_17
 }
 
-group = 'tv.isshoni.araragi'
+group = 'institute.isshoni.araragi'
 version = "$plugin_version"
 description = 'plugin'
 
